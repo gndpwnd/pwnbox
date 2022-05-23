@@ -28,7 +28,7 @@ usage() {
 
     -d DEVICE  		        network interface of target network
 	
-    -n NAME   		        target box name (doesn't need to = hostname)
+    -n NAME   		        (optional) hostname
 	
     -i IP     		        ip of the target box
 
@@ -38,7 +38,7 @@ usage() {
 
     $0 -d eth0 -i 10.10.10.1 -o /tmp/pwn_box2pwn/
 
-    $0 -d eth0 -n box2pwn.tld -o /tmp/pwn_box2pwn/
+    $0 -d eth0 -n name.tld -o /tmp/pwn_box2pwn/
     "
 }
 
