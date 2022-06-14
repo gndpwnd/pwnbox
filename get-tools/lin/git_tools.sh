@@ -87,6 +87,11 @@ git_tools=(
 "GhostPack/Rubeus"
 "GhostPack/Seatbelt"
 
+"gentilkiwi/kekeo"
+"NetSPI/PowerUpSQL"
+"samratashok/ADModule"
+
+
 # Automation
 
 "JohnHammond/poor-mans-pentest"
@@ -140,6 +145,9 @@ git_tools=(
 "megadose/holehe"
 "ytdl-org/youtube-dl"
 "AmIJesse/Elasticsearch-Crawler"
+
+# Social
+"An0nUD4Y/blackeye"
 
 # Files
 "decalage2/oletools"

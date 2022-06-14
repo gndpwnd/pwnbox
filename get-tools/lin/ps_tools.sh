@@ -41,6 +41,9 @@ scripts=(
 "mmessano/PowerShell/master/dns-dump"
 "hausec/ADAPE-Script/master/ADAPE"
 "orlyjamie/mimikittenz/master/Invoke-mimikittenz"
+"chryzsh/JenkinsPasswordSpray/master/JenkinsPasswordSpray"
+"FortyNorthSecurity/CLM-Base64/master/CLM-Base64"
+""
 )
 prog=1
 progt=$((${#scripts[@]}+1))
