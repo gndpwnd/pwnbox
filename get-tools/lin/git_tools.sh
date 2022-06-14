@@ -141,6 +141,9 @@ git_tools=(
 "ytdl-org/youtube-dl"
 "AmIJesse/Elasticsearch-Crawler"
 
+# Social
+An0nUD4Y/blackeye
+
 # Files
 "decalage2/oletools"
 )
