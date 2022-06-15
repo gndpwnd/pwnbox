@@ -43,6 +43,11 @@ scripts=(
 "orlyjamie/mimikittenz/master/Invoke-mimikittenz"
 "chryzsh/JenkinsPasswordSpray/master/JenkinsPasswordSpray"
 "FortyNorthSecurity/CLM-Base64/master/CLM-Base64"
+"darkoperator/Veil-PowerView/master/PowerView/functions/Invoke-UserHunter"
+"puckiestyle/powershell/master/SharpHound"
+"BloodHoundAD/BloodHound/master/Collectors/AzureHound"
+"darkoperator/Veil-PowerView/master/PowerView/functions/Invoke-ShareFinder"
+"NetSPI/PowerUpSQL/master/PowerUpSQL"
 ""
 )
 prog=1
