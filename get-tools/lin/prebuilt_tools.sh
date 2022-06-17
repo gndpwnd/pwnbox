@@ -50,7 +50,9 @@ links=(
 "https://github.com/C0nd4/OSCP-Priv-Esc/raw/main/images/Windows%20Privilege%20Escalation.png"
 "https://github.com/hxhBrofessor/PrivEsc-MindMap/raw/main/Linux-Privesc.JPG"
 "https://github.com/hxhBrofessor/PrivEsc-MindMap/raw/main/windows-mindMap.JPG"
-""
+
+
+"https://ad-iso.s3.amazonaws.com/AD_FTK_7.1.0.iso"
 )
 files=(
 )
