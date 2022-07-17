@@ -5,6 +5,14 @@ pip_tools=(
 "pipx"
 "pyinstaller" 
 "pynput==1.6.8"
+"wheel"
+"numpy"
+"instalooter"
+"pipenv"
+"pip-tools"
+"beautifulsoup4"
+"requests"
+
 )
 pipx_tools=(
 "Tib3rius/AutoRecon"

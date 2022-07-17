@@ -75,9 +75,12 @@ $tool_urls = @(
 # Hardware Acceleration (GPU)
 "https://developer.download.nvidia.com/compute/cuda/10.2/Prod/patches/2/cuda_10.2.2_win10.exe"
 
-)
+# Mining
 
-setup-x86_64.exe -P autoconf,automake,ccache,cygwin32-gcc-g++,gcc-g++,git,libtool,make,gawk,libexpat-devel,libxml2-devel,python37,python37-future,python37-lxml,python37-pip,libxslt-devel,python37-devel,procps-ng,zip,gdb,ddd
+"https://phoenixminer.info/downloads/PhoenixMiner_6.2c_Windows.zip"
+"https://github.com/xmrig/xmrig/releases/download/v6.18.0/xmrig-6.18.0-msvc-win64.zip"
+
+)
 
 $i = 0
 foreach($tool in $tool_urls) {
@@ -105,3 +108,5 @@ foreach($repo in $repos) {
 Write-Host "Cloning into ${repo}"
 git clone https://github.com/${repo}.git
 }
+
+setup-x86_64.exe -P autoconf,automake,ccache,cygwin32-gcc-g++,gcc-g++,git,libtool,make,gawk,libexpat-devel,libxml2-devel,python37,python37-future,python37-lxml,python37-pip,libxslt-devel,python37-devel,procps-ng,zip,gdb,ddd

