@@ -13,23 +13,35 @@ apt install -fy snapd
 systemctl start snapd
 systemctl enable snapd
 snap_packages=(
-"code --classic"
-"sublime-text --classic"
-"simplescreenrecorder"
+"code --classic",
+"sublime-text --classic",
+"simplescreenrecorder",
+"vlc",
+"spotify",
+"discord",
+"element-client",
+"telegram-desktop",
+"obs-studio",
+"thunderbird",
+"gimp",
+"kdenlive",
+"audacity",
+"powershell",
+"keepassxc",
+"libreoffice",
+"libreoffice-calc",
+"libreoffice-draw",
+"libreoffice-impress",
+"libreoffice-math",
+"libreoffice-writer",
+"librepcb",
+"android-studio --classic"
 )
-snap_aliases=(
-""
-)
-printf "${GREEN}[+] ${BLUE}Installing packages...${NC}\n"
-for package in ${snap_packages[@]}
-do
-	snap install $package
+for package in "${snap_packages[@]}"; do
+	printf "${GREEN}Installing ${BLUE}${package}${NC}\n"
+	snap install ${package}
 done
-printf "${GREEN}[+] ${BLUE}Creating aliases...${NC}\n"
-for package in ${snap_packages[@]}
-do
-	snap alias $snap_aliases
-done
+
 echo -e "
 ${YELLOW}[-] Add the following line to your user's .bashrc or .zshrc:${NC}
 

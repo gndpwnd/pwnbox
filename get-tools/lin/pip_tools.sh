@@ -12,7 +12,7 @@ pip_tools=(
 "pip-tools"
 "beautifulsoup4"
 "requests"
-
+"setup-tools"
 )
 pipx_tools=(
 "Tib3rius/AutoRecon"
