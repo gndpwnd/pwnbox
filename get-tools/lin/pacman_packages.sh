@@ -44,6 +44,11 @@ tools_list=(
 "linux-headers-\$(uname -r)",
 "rtl88xxau-aircrack-dkms-git",
 "archlinux-keyring",
+"tmux",
+"ruby",
+"openssh",
+"xclip",
+"vim",
 )
 
 packages=""
@@ -56,8 +61,9 @@ pacman -S ${packages}
 printf "${GREEN}[++++++++++] Packages have been installed...!!!${NC}\n"
 printf "${GREEN}[+] ${BLUE}Enabling services...${NC}\n"
 
-# Miscellaneous Packages
+# MISC
 curl https://sh.rustup.rs -sSf | sh -s -- -y
+curl -O https://blackarch.org/strap.sh -o setup_blackarch_keyring.sh
 
 services=(
 docker
@@ -72,8 +78,20 @@ Just some final notes...
 Run the following commands if you want to:
 
 1. Add your user to the docker group
-groupadd docker
-usermod -aG docker <your user>
-systemctl restart docker
+🠪 groupadd docker
+🠪 usermod -aG docker <your user>
+🠪 systemctl restart docker
 
+2. Install BlackArch
+🠪 bash setup_blackarch_keyring.sh
+🠪 pacman -Syu
+🠪 pacman -S blackman
+
+🠪 blackman -a
+
+3. Partially Install BlackArch (don't run -a)
+🠪 blackman -l
+🠪 blackman -g {category_2_install}
+🠪 blackman -p {category_2_list_tools}
+🠪 blackman -i {package_2_install}
 "
