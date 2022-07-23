@@ -9,9 +9,6 @@ if (( $EUID != 0 )); then
 	printf "This must be run as root.\nUse: ${NC}'sudo bash $0'\n"
  	exit
 fi
-apt install -fy snapd
-systemctl start snapd
-systemctl enable snapd
 snap_packages=(
 "code --classic",
 "sublime-text --classic",

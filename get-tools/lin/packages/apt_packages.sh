@@ -10,9 +10,6 @@ if (( $EUID != 0 )); then
  	exit
 fi
 unset GREP_OPTIONS
-echo "nameserver 1.1.1.1" > /etc/resolv.conf
-echo "nameserver 1.0.0.1" >> /etc/resolv.conf
-printf printf "${GREEN}[+] ${BLUE}Installed Cloudflare DNS...\n"
 have_repo=$(cat sources.list | grep "deb http://http.kali.org/kali kali-rolling main contrib non-free")
 if [[ $have_repo == *"deb http://http.kali.org/kali kali-rolling main non-free contrib"* ]]
 then
@@ -38,6 +35,7 @@ apt-get update > /dev/null 2>&1
 printf "${GREEN}[+] ${NC}Everything is up to date...\n"
 tools_list=(
 "curl"
+"snapd"
 "apt-transport-https"
 "htop"
 "iftop"
@@ -167,7 +165,8 @@ printf "${GREEN}[+] ${NC}Enabling services...${NC}\n"
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 services=(
-docker
+"docker",
+"snapd"
 )
 for service in ${services[@]}
 do

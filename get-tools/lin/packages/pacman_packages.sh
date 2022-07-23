@@ -10,20 +10,20 @@ if (( $EUID != 0 )); then
  	exit
 fi
 unset GREP_OPTIONS
-update_dns() {
-	echo "nameserver 1.1.1.1" > /etc/resolv.conf
-	echo "nameserver 1.0.0.1" >> /etc/resolv.conf
-	printf printf "${GREEN}[+] ${BLUE}Installed Cloudflare DNS..."
-}
 printf "${GREEN}[+] ${BLUE}Installing Blackarch repository...\n"
+
 pacman -S curl 2>/dev/null
+
 curl -O https://blackarch.org/strap.sh 2>/dev/null
 chmod +x strap.sh 2>/dev/null
-./strap.sh 2>/dev/null
+./strap.sh
 pacman -Syu 2>/dev/null
+
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+source $HOME/.cargo/env
+
 printf "${GREEN}[+] ${BLUE}Everything is up to date...\n"
 tools_list=(
-"curl",
 "golang",
 "nasm",
 "python",
@@ -61,10 +61,6 @@ pacman -S ${packages}
 printf "${GREEN}[++++++++++] Packages have been installed...!!!${NC}\n"
 printf "${GREEN}[+] ${BLUE}Enabling services...${NC}\n"
 
-# MISC
-curl https://sh.rustup.rs -sSf | sh -s -- -y
-curl -O https://blackarch.org/strap.sh -o setup_blackarch_keyring.sh
-
 services=(
 docker
 )
@@ -78,18 +74,18 @@ Just some final notes...
 Run the following commands if you want to:
 
 1. Add your user to the docker group
+
 🠪 groupadd docker
 🠪 usermod -aG docker <your user>
 🠪 systemctl restart docker
 
-2. Install BlackArch
-🠪 bash setup_blackarch_keyring.sh
-🠪 pacman -Syu
-🠪 pacman -S blackman
+2. Completely Install BlackArch
 
+🠪 pacman -S blackman
 🠪 blackman -a
 
 3. Partially Install BlackArch (don't run -a)
+
 🠪 blackman -l
 🠪 blackman -g {category_2_install}
 🠪 blackman -p {category_2_list_tools}
