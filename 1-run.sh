@@ -20,7 +20,7 @@ unset GREP_OPTIONS
 
 usage() {
 	echo -e "
-	${NC}usage: pwnbox -d DEVICE -n NAME -i IP -n HOST -r TEMPLATE -w TOKEN
+	${NC}usage: pwnbox -d DEVICE -n NAME -i IP -n HOSTNAME -r TEMPLATE -w TOKEN
 
 	OPTIONS:
 
@@ -32,7 +32,7 @@ usage() {
 	
 	-i IP     		ip of the target box
 
-	-n HOST   		(optional) hostname of the target box
+	-n HOSTNAME   	(optional) hostname of the target box
 					You can always run the gen_commands script
 					with only the hostname later.
 
@@ -114,7 +114,7 @@ troubleshooting () {
 	elif [ -z $box_name ]; then
 		printf "${RED}[x] (-o) No Name Provided!!! \n"
 		exit 1
-	elif [ -z $box_ip ]; then
+	elif [ -z ${box_ip} ]; then
 		printf "${RED}[x] (-i) No IP Provided... \n"
 		exit 1
 	fi
@@ -150,10 +150,10 @@ setup_fs () {
 	sub_recon=("nmap")
 	sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
 	misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
-	ad_actions=("Users" "Groups" "SPNs" "User_Perms" "Group_Perms" "Pwn_Paths" "TGTs" "Machines")
+	ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
 	rep_temps=(
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_OS_v2.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"
+		"https://raw.githubusercontent.cosm/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWE-exam-report-template_xl-sec_v1.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWP-exam-report-template_OS_v1.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSED-exam-report-template_OS_v1.md"
@@ -194,8 +194,6 @@ setup_fs () {
 }
 setup_fs
 
-chmod -R 777 ${loc}
-
 ##############################
 #  			Scans	     	#
 ##############################
@@ -217,22 +215,22 @@ port_scans () {
         docker pull rustscan/rustscan
 	fi
 	printf "${YELLOW}[o] Running rustscan...\n"
-	export init_ports=$(docker run rustscan/rustscan -ga $box_ip | cut -f2 -d "[" | cut -f1 -d "]")
-	printf "\n${BLUE}${init_ports}\n"
+	export init_ports=$(docker run rustscan/rustscan -ga ${box_ip} | cut -f2 -d "[" | cut -f1 -d "]")
+	printf "\n${BLUE}Initial Ports:${NC} ${init_ports}\n"
 	n_scan=$((n_scan+1))
 
 
 	printf "\n${BLUE}[${n_scan}/${n_scans}]${NC} masscan - tcp\n"
-	sudo masscan -p0-65535 $box_ip --max-rate 1000 -oG ${loc}/1-recon/masscan-tcp.md -e $inf
+	sudo masscan -p0-65535 ${box_ip} --max-rate 1000 -oG ${loc}/1-recon/masscan-tcp.md -e $inf
 	declare -g tcp=$(cat ${loc}/1-recon/masscan-tcp.md | grep -oP '(?<=Ports: )\S*'| cut -f1 -d "/" | tr '\n' ',' | rev | cut -f2- -d "," | rev)
-	printf "\n${BLUE}${tcp}\n"
+	printf "\n${BLUE}Ports:${NC} ${tcp}\n"
 	n_scan=$((n_scan+1))
 
 
 	printf "\n${BLUE}[${n_scan}/${n_scans}]${NC} masscan - udp\n"
-	sudo masscan -pU:0-65535 $box_ip --max-rate 1000 -oG ${loc}/1-recon/masscan-udp.md -e $inf
+	sudo masscan -pU:0-65535 ${box_ip} --max-rate 1000 -oG ${loc}/1-recon/masscan-udp.md -e $inf
 	declare -g udp=$(cat ${loc}/1-recon/masscan-udp.md | grep -oP '(?<=Ports: )\S*'| cut -f1 -d "/" | tr '\n' ',' | rev | cut -f2- -d "," | rev)
-	printf "\n${BLUE}${udp}\n"
+	printf "\n${BLUE}Ports:${NC} ${udp}\n"
 	n_scan=$((n_scan+1))
 
 
@@ -243,7 +241,7 @@ port_scans () {
 
 	printf "\n${BLUE}[${n_scan}/${n_scans}]${NC} Nmap - tcp\n"
 	nmap_report="${loc}/1-recon/nmap/ip_tcp.md"
-	nmap -Pn -vvv -p ${all_ports} -sC -sV -oN ${nmap_report} $box_ip
+	sudo nmap -Pn -vvv -p ${all_ports} -sC -sV -oN ${nmap_report} ${box_ip}
 }
 port_scans
 
@@ -251,7 +249,7 @@ port_scans
 #  		Reporting	     	 #
 ##############################
 
-reoprting () {
+reporting () {
 	printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Reporting...\n"
 	i_progress=$((i_progress+1))
 
@@ -266,32 +264,33 @@ reoprting () {
 	fi
 
 	echo -e "
-#!/bin/bash
+	#!/bin/bash
 
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
+	GREEN='\033[0;32m'
+	YELLOW='\033[0;33m'
 
-PARENT_DIR=\"${loc}\"
+	PARENT_DIR=\"${loc}\"
 
-printf \"\${YELLOW}[+] Generating report...\\n\"
-pandoc \${PARENT_DIR}/${box_name}_report.md -o \${PARENT_DIR}/${box_name}_report.pdf \\
---from markdown+yaml_metadata_block+raw_html \\
---template eisvogel \\
---table-of-contents \\
---toc-depth 6 \\
---number-sections \\
---top-level-division=chapter \\
---highlight-style breezedark
+	printf \"\${YELLOW}[+] Generating report...\\n\"
+	pandoc \${PARENT_DIR}/${box_name}_report.md -o \${PARENT_DIR}/${box_name}_report.pdf \\
+	--from markdown+yaml_metadata_block+raw_html \\
+	--template eisvogel \\
+	--table-of-contents \\
+	--toc-depth 6 \\
+	--number-sections \\
+	--top-level-division=chapter \\
+	--highlight-style breezedark
 
-printf \"\${GREEN}[+] Report generated\\n\"
-printf \"\${YELLOW}[+] Cleaning FS...\\n\"
+	printf \"\${GREEN}[+] Report generated\\n\"
+	printf \"\${YELLOW}[+] Cleaning FS...\\n\"
 
-find \${PARENT_DIR} -empty -delete
-rm -rf \${PARENT_DIR}/cmds2run/
+	find \${PARENT_DIR} -empty -delete
+	rm -rf \${PARENT_DIR}/cmds2run/
 
-printf \"\${GREEN}[+] FS has been cleaned of empty files and folders.\\n\"
+	printf \"\${GREEN}[+] FS has been cleaned of empty files and folders.\\n\"
 
 	" > ${loc}/report_gen.sh
+	sed -i 's/^[ \t]*//' ${loc}/report_gen.sh
 
 	if [[ $rtemp != 0 ]]; then
 		wget ${rep_temps[${rtemp}]} -O ${loc}/${box_name}_report.md > /dev/null 2>&1	
@@ -299,203 +298,204 @@ printf \"\${GREEN}[+] FS has been cleaned of empty files and folders.\\n\"
 
 		echo -e "
 
----
-title: \"${box_name} Report\"
-author: [\"${USER}\"]
-date: "$(date +\"%D\")"
-subject: \"Markdown\"
-keywords: [Markdown, Example]
-subtitle: \"Box Report\"
-lang: \"en\"
-titlepage: true
-titlepage-color: \"1E90FF\"
-titlepage-text-color: \"FFFAFA\"
-titlepage-rule-color: \"FFFAFA\"
-titlepage-rule-height: 2
-book: true
-classoption: oneside
-code-block-font-size: \scriptsize
----
-# ${box_name} Report
+	---
+	title: \"${box_name} Report\"
+	author: [\"${USER}\"]
+	date: "$(date +\"%D\")"
+	subject: \"Markdown\"
+	keywords: [Markdown, Example]
+	subtitle: \"Box Report\"
+	lang: \"en\"
+	titlepage: true
+	titlepage-color: \"1E90FF\"
+	titlepage-text-color: \"FFFAFA\"
+	titlepage-rule-color: \"FFFAFA\"
+	titlepage-rule-height: 2
+	book: true
+	classoption: oneside
+	code-block-font-size: \scriptsize
+	---
+	# ${box_name} Report
 
-# Methodologies
+	# Methodologies
 
-I utilized a widely adopted approach to performing penetration testing that is effective in testing how well the ${box_name} machine is secured.
-Below is a breakout of how I was able to identify and exploit the variety of systems and includes all individual vulnerabilities found.
+	I utilized a widely adopted approach to performing penetration testing that is effective in testing how well the ${box_name} machine is secured.
+	Below is a breakout of how I was able to identify and exploit the variety of systems and includes all individual vulnerabilities found.
 
-## Information Gathering
+	## Information Gathering
 
-The information gathering portion of a penetration test focuses on identifying the scope of the penetration test.
-During this penetration test, I was tasked with exploiting the ${box_name} machine.
+	The information gathering portion of a penetration test focuses on identifying the scope of the penetration test.
+	During this penetration test, I was tasked with exploiting the ${box_name} machine.
 
-The specific IP address was:
+	The specific IP address was:
 
-- ${box_ip}
+	- ${box_ip}
 
-## Penetration
+	## Penetration
 
-The penetration testing portions of the assessment focus heavily on gaining access to a variety of systems.
-During this penetration test, I was able to successfully gain access to the ${box_name} machine.
+	The penetration testing portions of the assessment focus heavily on gaining access to a variety of systems.
+	During this penetration test, I was able to successfully gain access to the ${box_name} machine.
 
-\\\newpage
+	\\\\newpage
 
-### System IP: ${box_ip}
+	### System IP: ${box_ip}
 
-#### Service Enumeration
+	#### Service Enumeration
 
-The service enumeration portion of a penetration test focuses on gathering information about what services are alive on a system or systems.
-This is valuable for an attacker as it provides detailed information on potential attack vectors into a system.
-Understanding what applications are running on the system gives an attacker needed information before performing the actual penetration test.
-In some cases, some ports may not be listed.
+	The service enumeration portion of a penetration test focuses on gathering information about what services are alive on a system or systems.
+	This is valuable for an attacker as it provides detailed information on potential attack vectors into a system.
+	Understanding what applications are running on the system gives an attacker needed information before performing the actual penetration test.
+	In some cases, some ports may not be listed.
 
-Server IP Address | Ports Open
-------------------|----------------------------------------
-${box_ip}      | **TCP: ${tcp}** \ **UDP: ${udp}**
+	Server IP Address | Ports Open
+	------------------|----------------------------------------
+	${box_ip}      | **TCP: ${tcp}** \ **UDP: ${udp}**
 
-\\\newpage
+	\\\\newpage
 
-**Nmap Scan Results:**
+	**Nmap Scan Results:**
 
-Service Scan:
+	Service Scan:
 
-\`\`\`bash
+	\`\`\`bash
 
-\`\`\`
+	\`\`\`
 
-Notable Output:
+	Notable Output:
 
-\`\`\`txt
+	\`\`\`txt
 
-\`\`\`
+	\`\`\`
 
-Vulnerability Scan:
+	Vulnerability Scan:
 
-\`\`\`bash
+	\`\`\`bash
 
-\`\`\`
+	\`\`\`
 
-Notable Output:
+	Notable Output:
 
-\`\`\`txt
+	\`\`\`txt
 
-\`\`\`
+	\`\`\`
 
 
-\\\newpage
+	\\\\newpage
 
-#### Initial Access
+	#### Initial Access
 
-**Vulnerability Exploited:**
+	**Vulnerability Exploited:**
 
-**Vulnerability Explanation:**
+	**Vulnerability Explanation:**
 
-Reference: *link*
+	Reference: *link*
 
-**Vulnerability Fix:**
+	**Vulnerability Fix:**
 
-Reference: *link*
+	Reference: *link*
 
-**Severity:** Critical
+	**Severity:** Critical
 
-\\\newpage
+	\\\\newpage
 
-**Exploit Code:**
+	**Exploit Code:**
 
-Reference: *link*
+	Reference: *link*
 
-\\\newpage
+	\\\\newpage
 
-**Local.txt Proof Screenshot**
+	**Local.txt Proof Screenshot**
 
-![x](screenshots-storage/image.png)
+	![x](screenshots-storage/image.png)
 
-**Local.txt Contents**
+	**Local.txt Contents**
 
-\`\`\`txt
-localtxt
-\`\`\`
+	\`\`\`txt
+	localtxt
+	\`\`\`
 
-\\\newpage
+	\\\\newpage
 
-#### Privilege Escalation
+	#### Privilege Escalation
 
-**Vulnerability Exploited:**
+	**Vulnerability Exploited:**
 
-**Vulnerability Explanation:**
+	**Vulnerability Explanation:**
 
-Reference: *link*
+	Reference: *link*
 
 
-**Vulnerability Fix:**
+	**Vulnerability Fix:**
 
-Reference: *link*
+	Reference: *link*
 
-**Severity:** Critical
+	**Severity:** Critical
 
-\\\newpage
+	\\\\newpage
 
-**Exploit Code:**
+	**Exploit Code:**
 
-Reference: *link*
+	Reference: *link*
 
-\\\newpage
+	\\\\newpage
 
-**Proof Screenshot Here:**
+	**Proof Screenshot Here:**
 
-![x](screenshots-storage/image.png)
+	![x](screenshots-storage/image.png)
 
-**Proof.txt Contents:**
+	**Proof.txt Contents:**
 
-\`\`\`txt
-prooftxt
-\`\`\`
+	\`\`\`txt
+	prooftxt
+	\`\`\`
 
-\\\newpage
+	\\\\newpage
 
-## Maintaining Access
+	## Maintaining Access
 
-Maintaining access to a system is important to us as attackers, ensuring that we can get back into a system after it has been exploited is invaluable.
-The maintaining access phase of the penetration test focuses on ensuring that once the focused attack has occurred (i.e. a buffer overflow), we have administrative access over the system again.
-Many exploits may only be exploitable once and we may never be able to get back into a system after we have already performed the exploit.
+	Maintaining access to a system is important to us as attackers, ensuring that we can get back into a system after it has been exploited is invaluable.
+	The maintaining access phase of the penetration test focuses on ensuring that once the focused attack has occurred (i.e. a buffer overflow), we have administrative access over the system again.
+	Many exploits may only be exploitable once and we may never be able to get back into a system after we have already performed the exploit.
 
-## House Cleaning
+	## House Cleaning
 
-The house cleaning portions of the assessment ensures that remnants of the penetration test are removed.
-Often fragments of tools or user accounts are left on an organization's computer which can cause security issues down the road.
-Ensuring that we are meticulous and no remnants of our penetration test are left over is important.
+	The house cleaning portions of the assessment ensures that remnants of the penetration test are removed.
+	Often fragments of tools or user accounts are left on an organization's computer which can cause security issues down the road.
+	Ensuring that we are meticulous and no remnants of our penetration test are left over is important.
 
-After collecting trophies from the ${box_name} machine was completed, I removed all user accounts, passwords, and malicious codes used during the penetration test.
-Technicians should not have to remove any user accounts or services from the system.
+	After collecting trophies from the ${box_name} machine was completed, I removed all user accounts, passwords, and malicious codes used during the penetration test.
+	Technicians should not have to remove any user accounts or services from the system.
 
-\\\newpage
+	\\\\newpage
 
-# Appendix - Additional Items
+	# Appendix - Additional Items
 
-## Appendix - Proof and Local Contents:
+	## Appendix - Proof and Local Contents:
 
-IP (Hostname) | Local.txt Contents | Proof.txt Contents
---------------|--------------------|-------------------
-${box_ip}   |  localtxt | prooftxt
+	IP (Hostname) | Local.txt Contents | Proof.txt Contents
+	--------------|--------------------|-------------------
+	${box_ip}   |  localtxt | prooftxt
 
-\\\newpage
+	\\\\newpage
 
-## Appendix - /etc/passwd contents
+	## Appendix - /etc/passwd contents
 
-\`\`\`txt
+	\`\`\`txt
 
-\`\`\`
+	\`\`\`
 
-\\\newpage
+	\\\\newpage
 
-## Appendix - /etc/shadow contents
+	## Appendix - /etc/shadow contents
 
-\`\`\`txt
+	\`\`\`txt
 
-\`\`\`
-" > ${loc}/${box_name}_report.md
-fi
+	\`\`\`
+	" > ${loc}/${box_name}_report.md
+	sed -i 's/^[ \t]*//' ${loc}/${box_name}_report.md
+	fi
 }
-reoprting
+reporting
 
 ##############################
 # 		Make ENV Script      #
@@ -550,6 +550,7 @@ gen_env_script () {
 
 	chmod -R 777 ${loc}
 	chown $USER -R ${loc}
+	printf "\n${BLUE}[${i_progress}/${t_progress}]${NC} ENV Script created.\n"
 }
 gen_env_script
 
@@ -558,15 +559,20 @@ gen_env_script
 # 		Gen Commands         #
 ##############################
 
-script_loc2=$(find / -type f -name "2-pwnbox_gen_commands.sh" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
-if [ -z "$script_loc2" ]; then
-  printf "${YELLOW}[-]${NC} Gen Commands Scripts not found... \n"
-  printf "${YELLOW}[-]${NC} Attempting to download pwnbox... \n"
-  git clone https://github.com/gndpwnd/pwnbox.git
-  script_loc2=$(find / -type f -name "2-pwnbox_gen_commands.sh" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
-fi
-
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Generating Commands...\n"
+while true; do
+
+	script_loc2=$(find / -type f -name "2-gen_commands.sh" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
+	if [ -z "$script_loc2" ]; then
+  		printf "${YELLOW}[-]${NC} Gen Commands Scripts not found... \n"
+  		printf "${YELLOW}[-]${NC} Attempting to download pwnbox... \n"
+  		git clone https://github.com/gndpwnd/pwnbox.git
+	else
+		printf "${GREEN}[+]${NC} Gen Commands Scripts found... \n"
+		break
+	fi
+done
+
 i_progress=$((i_progress+1))
 
 if [ ! -z "$box_host" -a "$box_host"!=" " ]; then
@@ -582,7 +588,9 @@ fi
 wrap_up () {
 	printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Wrapping up..."
 	i_progress=$((i_progress+1))
-	printf "${GREEN}Next Steps:${NC}\n"
+	chmod -R 777 ${loc}
+	chown $USER -R ${loc}
+	printf "\n${GREEN}Next Steps:${NC}\n"
 	echo -e "
 
 	1. Set up ENV variables with this script:  
