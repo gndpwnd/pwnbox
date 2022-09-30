@@ -3,54 +3,92 @@
 # Make sure to run the following in an admin shell:
 # Set-ExecutionPolicy RemoteSigned
 
+$basics = @(
+    # Basic System Stuff
+    # "https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi",
+    "https://www.cygwin.com",
+    "https://www.google.com/chrome/",
+    "https://www.videolan.org/vlc/download-windows.html",
+)
+
+$prog_lang = @(
+    # Programming Languages
+    "https://www.python.org/downloads/release/python-377/",
+    "https://go.dev/dl/",
+    "https://forge.rust-lang.org/infra/other-installation-methods.html",
+
+    # IDEs
+    "https://code.visualstudio.com/docs/?dv=win",
+    "https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false",
+    "https://www.arduino.cc/en/software",
+    "https://www.sublimetext.com/3".
+    "https://docs.platformio.org/en/latest/core/installation/methods/installer-script.html"
+)
+
+$sys = @(
+
+)
+
 $tool_urls = @(
 
-# Basic System Stuff
-"https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi",
-"https://www.cygwin.com/setup-x86_64.exe",
-"https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BBAFC6A1A-804E-0EE1-2E53-B51033C1DC88%7D%26lang%3Den%26browser%3D4%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26brand%3DJJTC%26installdataindex%3Dempty/update2/installers/ChromeSetup.exe",
-"https://vlc.freemirror.org/vlc/3.0.17.4/win32/vlc-3.0.17.4-win32.exe",
-
-# Programming Languages
-"https://www.python.org/ftp/python/3.7.7/python-3.7.7-amd64.exe",
-"https://www.python.org/ftp/python/3.10.5/python-3.10.5-amd64.exe",
-"https://go.dev/dl/go1.18.1.windows-amd64.msi",
-"https://static.rust-lang.org/rustup/dist/i686-pc-windows-gnu/rustup-init.exe",
-
-# IDEs
-"https://az764295.vo.msecnd.net/stable/dfd34e8260c270da74b5c2d86d61aee4b6d56977/VSCodeUserSetup-x64-1.66.2.exe",
-"https://aka.ms/vs/17/release/vs_community.exe",
-"https://downloads.arduino.cc/arduino-1.8.19-windows.exe",
-
 # System Tools
-"https://www.7-zip.org/a/7z2107-x64.exe",
-"https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-windows-x86_64.msi",
-"https://github.com/balena-io/etcher/releases/download/v1.7.9/balenaEtcher-Setup-1.7.9.exe",
-"https://www.oracle.com/webapps/redirect/signon?nexturl=https://download.oracle.com/otn/java/jdk/11.0.13%2B10/bdde8881e2e3437baa70044f884d2d67/jdk-11.0.13_windows-x64_bin.exe",
-"https://download.sublimetext.com/Sublime%20Text%20Build%203211%20x64%20Setup.exe",
-"https://download.oracle.com/java/17/latest/jdk-17_windows-x64_bin.exe",
-"https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe",
-"https://github.com/git-for-windows/git/releases/download/v2.35.1.windows.2/Git-2.35.1.2-64-bit.exe",
+"https://www.7-zip.org/download.html",
+"https://cmake.org/download/",
+"https://www.balena.io/etcher/",
+"https://www.java.com/download/ie_manual.jsp",
+"https://www.oracle.com/java/technologies/downloads/#jdk17-windows",
+"https://www.docker.com/products/docker-desktop/",
+"https://git-scm.com/downloads",
+"https://desktop.github.com/",
 
-# Advanced System Tools
-"https://1.na.dl.wireshark.org/win64/Wireshark-win64-3.4.14.exe",
-"https://iweb.dl.sourceforge.net/project/networkminer/networkminer/NetworkMiner-1.6.1/NetworkMiner_1-6-1.zip",
-"https://download.jetbrains.com/resharper/dotUltimate.2021.3.3/JetBrains.dotUltimate.2021.3.3.exe",
-"https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.4_build/ghidra_10.1.4_PUBLIC_20220519.zip",
-"https://www.autoitscript.com/cgi-bin/getfile.pl?autoit3/autoit-v3-setup.zip",
-"https://download.sysinternals.com/files/SysinternalsSuite.zip",
-"https://www.python.org/ftp/python/3.10.2/python-3.10.2-amd64.exe",
-"https://github.com/x64dbg/ScyllaHide/releases/download/snapshot-2021-08-23_13-27-50/ScyllaHide.7z",
-"https://github.com/x64dbg/x64dbg/releases/download/snapshot/snapshot_2022-03-02_15-55.zip",
-"https://github.com/hasherezade/pe-bear-releases/releases/download/0.5.5.3/PE-bear_0.5.5.3_x64_win_vs17.zip",
-"https://www.winitor.com/tools/pestudio/current/pestudio.zip",
-"https://github.com/eteran/edb-debugger/archive/refs/tags/1.3.0.zip",
+# Forensics Tools
+"https://www.wireshark.org/download.html",
+"https://www.netresec.com/?page=NetworkMiner",
+"https://www.jetbrains.com/dotnet/",
+"https://github.com/NationalSecurityAgency/ghidra/releases",
+"https://www.autoitscript.com/site/autoit/downloads/",
+"https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite",
+"https://github.com/x64dbg/ScyllaHide/releases",
+"https://sourceforge.net/projects/x64dbg/files/snapshots/",
+"https://github.com/hasherezade/pe-bear-releases/releases",
+"https://www.winitor.com/download2",
+"https://github.com/eteran/edb-debugger/releases",
+"https://www.immunityinc.com/products/debugger/"
+"https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/debugger-download-tools",
+"https://hex-rays.com/ida-free/",
+"https://github.com/VirusTotal/yara/releases",
+"https://github.com/decalage2/balbuzard/",
+"https://github.com/horsicq/Detect-It-Easy/",
+"https://github.com/horsicq/DIE-engine/",
+"https://processhacker.sourceforge.io/downloads.php",
+"https://www.procdot.com/downloadprocdotbinaries.htm",
+"https://sourceforge.net/projects/fakenet/",
+"https://downloads.digitalcorpora.org/downloads/bulk_extractor/",
+"https://www.novirusthanks.org/products/ssdt-view/",
+"https://github.com/antiwar3/py",
+"https://github.com/poona/APIMiner/releases",
+"https://github.com/DidierStevens/FalsePositives/blob/master/XORSearch_V1_11_4.zip",
+"https://www.aldeid.com/wiki/BinText",
+"https://www.aldeid.com/wiki/PEiD",
+"https://ntcore.com/?page_id=388"
+
+
+
+
+
+
+
+
+
+
+
 
 # Remote Administration
-"https://storage.googleapis.com/hak5-dl.appspot.com/cloudc2/firmwares/3.1.2-stable/c2-3.1.2.zip",
-"https://downloads.realvnc.com/download/file/viewer.files/VNC-Viewer-6.22.207-Windows-64bit.exe",
-"https://the.earth.li/~sgtatham/putty/0.77/w64/putty-64bit-0.77-installer.msi",
-"https://download.wireguard.com/windows-client/wireguard-installer.exe",
+"https://downloads.hak5.org/cloudc2",
+"https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html",
+"https://www.wireguard.com/install/",
+"https://www.realvnc.com/en/connect/download/vnc/",
+"https://www.realvnc.com/en/connect/download/viewer/"
 
 # Design
 "https://github.com/Ultimaker/Cura/releases/download/4.13.1/Ultimaker_Cura-4.13.1-amd64.exe",
