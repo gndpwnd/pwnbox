@@ -15,7 +15,21 @@ systemctl enable snapd
 snap_packages=(
 "code --classic"
 "sublime-text --classic"
+"blender --classic"
 "simplescreenrecorder"
+"coq-prover"
+"obs-studio"
+"cura-slicer"
+"vlc"
+"telegram-desktop"
+"element-desktop"
+"audacity"
+"qr-code-generator-desktop"
+"discord"
+"thunderbird"
+"gimp"
+"keepassxc"
+"zoom-client"
 )
 snap_aliases=(
 ""
