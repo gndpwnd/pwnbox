@@ -46,6 +46,7 @@ tools_list=(
 "terminator"
 "git"
 "docker.io"
+"s3cmd"
 "cherrytree"
 "wireshark" 
 "sqlitebrowser"  
