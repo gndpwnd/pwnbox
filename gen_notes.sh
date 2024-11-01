@@ -16,13 +16,13 @@ rtemp=
 wpapi=
 
 i_progress=1
-t_progress=5
+t_progress=6
 
 PWNBOX_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # the directory of where the script is being run, reference to copy notes from
 
 usage() {
 	echo -e "
-	${NC}usage: pwnbox -d DEVICE -n NAME -i IP -n HOSTNAME -r TEMPLATE -w TOKEN
+	${NC}usage: $0 -d DEVICE -n NAME -i IP -n HOSTNAME -r TEMPLATE -w TOKEN
 
 	OPTIONS:
 
@@ -70,9 +70,9 @@ do
     i)
       box_ip=$OPTARG
       ;;
-	n)
-	  box_host=$OPTARG
-	  ;;
+    n)
+      box_host=$OPTARG
+      ;;
     r)
       rtemp=$OPTARG
       ;;
@@ -96,21 +96,24 @@ done
 ##############################
 
 troubleshooting () {
-	if (( $EUID != 0 )); then
-		printf "${RED}[x] sudo privileges not detected!!!\n"
-		exit 1
-	fi
+	#if (( $EUID != 0 )); then
+	#	printf "${RED}[x] sudo privileges not detected!!!\n"
+	#	exit 1
+	#fi
 
 	# If Required Args are empty
 
-	if [ -z $inf ]; then
+	if [ -z ${inf} ]; then
 		printf "${RED}[x] (-d) No Network Interface Provided!!!\n"
 		exit 1
-	elif [ -z $box_name ]; then
+	elif [ -z ${box_name} ]; then
 		printf "${RED}[x] (-o) No Name Provided!!! \n"
 		exit 1
 	elif [ -z ${box_ip} ]; then
 		printf "${RED}[x] (-i) No IP Provided... \n"
+		exit 1
+  elif [ -z ${box_host} ]; then
+		printf "${RED}[x] (-n) No hostname provided!!! At least give box name with a '.tld'. You can change all the scripts later with Generated_Commands/change_hostname.sh\n"
 		exit 1
 	fi
 
@@ -151,9 +154,9 @@ rep_temps=(
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSEP-exam-report-template_ceso_v1.md"
 	)
 
-setup_fs () {
 
-    printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
+setup_fs () {
     i_progress=$((i_progress+1))
 
     mkdir -p ${loc}
@@ -183,10 +186,9 @@ setup_fs () {
     for ad_action in "${ad_actions[@]}"; do
         touch ${loc}/${folder_names[5]}/${ad_action}.md
     done
-
-    printf "\n${GREEN}[+]${NC} fs organization complete...\n"
 }
 setup_fs
+printf "\n${GREEN}[+]${NC} fs organization complete...\n"
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Notes..."
@@ -244,7 +246,6 @@ reporting() {
 }
 reporting
 printf "\n${GREEN}[+]${NC} Reporting Setup\n"
-
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting notes...\n"
@@ -340,5 +341,7 @@ lowhangfruit(){
 lowhangfruit
 printf "\n${GREEN}[+]${NC} scripts grabbed..."
 
+sed -i "s/BOXLOCATION/${loc}/g" ${loc}/Generated_Commands/1\ -\ Reporting/change_box_info.sh
+printf "\nMake sure to run the following:\n\n     sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts"
 chmod -R 777 ${loc}
 printf "\n${GREEN}DONE!!!\n"
