@@ -12,8 +12,13 @@ inf= # network interface
 loc= # location of where all the files from this script will be put
 box_ip= # the IP of the target box
 box_host= # the hostname of the target box with domain extension for DNS stuff
+rtemp=
+wpapi=
 
 PWNBOX_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # the directory of where the script is being run, reference to copy notes from
+
+i_progress=1
+t_progress=5
 
 usage() {
 	echo -e "
@@ -49,12 +54,6 @@ usage() {
 	"
 }
 
-inf=
-box_name=
-box_ip=
-box_host=
-rtemp=
-wpapi=
 
 while getopts “:hd:t:o:i:n:r:w:” OPTION
 do
@@ -144,120 +143,88 @@ troubleshooting
 
 
 setup_fs () {
-	loc=$(pwd)/${box_name}
-	basic_fs=("${box_name}_report.md" "${box_name}_proofs.md")
-	folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
-	sub_recon=("nmap")
-	sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
-	sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
-	ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
-	rep_temps=(
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_OS_v2.md"
-		"https://raw.githubusercontent.cosm/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWE-exam-report-template_xl-sec_v1.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWP-exam-report-template_OS_v1.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSED-exam-report-template_OS_v1.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSEP-exam-report-template_ceso_v1.md"
-	)
+    loc=$(pwd)/${box_name}
+    basic_fs=("${box_name}_report.md" "${box_name}_proofs.md")
+    folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
+    sub_recon=("nmap")
+    sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
+    sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
+    ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
+    rep_temps=( ... )  # Your URLs for templates here
 
-	printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
-	i_progress=$((i_progress+1))
+    printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
+    i_progress=$((i_progress+1))
 
-	mkdir ${loc}
+    mkdir -p ${loc}
 
-	# create basic file and folder structure
-	for file in "${basic_fs[@]}"; do
-		touch ${loc}/${file}
-	done
-	for folder_name in "${folder_names[@]}"; do
-		mkdir ${loc}/${folder_name}
-		touch ${loc}/${folder_name}/${folder_name}_mini_report.md
-	done
+    # Create basic file and folder structure
+    for file in "${basic_fs[@]}"; do
+        touch ${loc}/${file}
+    done
+    for folder_name in "${folder_names[@]}"; do
+        mkdir -p ${loc}/${folder_name}
+        touch ${loc}/${folder_name}/${folder_name}_mini_report.md
+    done
 
+    # Create subfolders and files for tools and services
+    for dir in "${sub_recon[@]}"; do
+        mkdir -p ${loc}/${folder_names[0]}/${dir}
+        touch ${loc}/${folder_names[0]}/${dir}/mini_report.md
+    done
+    for service in "${sub_enum[@]}"; do
+        mkdir -p ${loc}/${folder_names[1]}/${service}
+        touch ${loc}/${folder_names[1]}/${service}/mini_report.md
+    done
+    for toolname in "${sub_misc_tools[@]}"; do
+        mkdir -p ${loc}/${folder_names[4]}/${toolname}
+        touch ${loc}/${folder_names[4]}/${toolname}/mini_report.md
+    done
+    for ad_action in "${ad_actions[@]}"; do
+        touch ${loc}/${folder_names[5]}/${ad_action}.md
+    done
 
-	# create subfolders and files for tools and services that are used often because the folders will likely be made anyway
-	# also enhance notetaking with mini report files that act as a place to dump relevant information
-	for dir in "${sub_recon[@]}"; do
-		mkdir ${loc}/${folder_names[0]}/${dir}
-		touch ${loc}/${folder_names[0]}/${dir}/mini_report.md
-	done
-	for service in "${sub_enum[@]}"; do
-		mkdir ${loc}/${folder_names[1]}/${service}
-		touch ${loc}/${folder_names[1]}/${service}/mini_report.md
-	done
-	for toolname in "${misc_tools[@]}"; do
-		mkdir ${loc}/${folder_names[4]}/${toolname}
-		touch ${loc}/${folder_names[4]}/${toolname}/mini_report.md
-	done
-	for ad_action in "${ad_actions[@]}"; do
-			touch ${loc}/${folder_names[5]}/${ad_action}.md
-	done
+    # Get basic scripts for exploiting low-hanging fruit
+    xpURLs=(
+        "https://raw.githubusercontent.com/Arrexel/phpbash/refs/heads/master/phpbash.php"
+    )
+    for url in "${xpURLs[@]}"; do  # Correctly reference xpURLs
+        echo "WGET XP $url..."
+        if ! wget -O ${loc}/${folder_names[2]}/$(basename "$url") "$url" ; then
+            echo "Warning: Failed to download $url"
+        fi
+    done
 
+    # Get basic privesc scripts for Linux and Windows
+    privURLs=(
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas.sh"
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas_small.sh"
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/winPEAS.bat"
+        "https://raw.githubusercontent.com/rebootuser/LinEnum/refs/heads/master/LinEnum.sh"
+    )
 
-	# get basic scripts for exploiting low hanging fruit
-	xpURLs=(
-		"https://raw.githubusercontent.com/Arrexel/phpbash/refs/heads/master/phpbash.php"
-		)
-	for url in "${urls[privURLs]}"; do
-	    echo "WGET XP $url..."
-	    
-	    # Attempt to download the file
-	    if ! wget -O ${loc}/${folder_names[2]}/$(basename "$url") "$url"; then
-	        # If wget fails, print a warning message
-	        echo "Warning: Failed to download $url"
-	    fi
-	done
+    for url in "${privURLs[@]}"; do  # Correctly reference privURLs
+        echo "WGET PRIVESC $url..."
+        if ! wget -O ${loc}/${folder_names[3]}/$(basename "$url") "$url" ; then
+            echo "Warning: Failed to download $url"
+        fi
+    done
 
+    # Generate SSH keys
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_rsa_persis -N ""
+    chmod 600 ${loc}/${folder_names[3]}/user_rsa_persis
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/root_rsa_persis -N ""
+    chmod 600 ${loc}/${folder_names[3]}/root_rsa_persis
 
-	# get basic privesc scripts for linux and windows, if not available, then links are provided in privesc notes
-	privURLs=(
-		"https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas.sh"
-		"https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas_small.sh"
-		"https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/winPEAS.bat"
-		"https://raw.githubusercontent.com/rebootuser/LinEnum/refs/heads/master/LinEnum.sh"
-		)
+    # Add public SSH keys to the mini report
+    {
+        echo -e "### New Usable SSH Pub Keys\n\n> add to ~/.ssh/authorized_keys\n\nUser\n\`\`\`"
+        cat ${loc}/${folder_names[3]}/user_rsa_persis.pub
+        echo -e "\n\`\`\`\n\nRoot\n\`\`\`"
+        cat ${loc}/${folder_names[3]}/root_rsa_persis.pub
+        echo -e "\n\`\`\`"
+    } >> ${loc}/${folder_names[3]}/mini_report.md
 
-
-	for url in "${urls[privURLs]}"; do
-	    echo "WGET PRIVESC $url..."
-	    
-	    # Attempt to download the file
-	    if ! wget -O ${loc}/${folder_names[3]}/$(basename "$url") "$url"; then
-	        # If wget fails, print a warning message
-	        echo "Warning: Failed to download $url"
-	    fi
-	done
-
-
-	# generate ssh keys to be used in the future (add to authorized keys on target machine)
-	echo "${loc}/${folder_names[3]}/user_rsa_persis" | ssh-keygen -t rsa -b 4096 -C "your_email@example.com"; chmod 600 ${loc}/${folder_names[3]}/user_rsa_persis; 
-	echo "${loc}/${folder_names[3]}/root_rsa_persis" | ssh-keygen -t rsa -b 4096 -C "your_email@example.com"; chmod 600 ${loc}/${folder_names[3]}/root_rsa_persis; 
-	# add public ssh keys to privesc/persis report
-	echo -e "
-### New Usable SSH Pub Keys
-
-> add to ~/.ssh/authorized_keys
-
-User
-\'\'\'
-" >> ${loc}/${folder_names[3]}/mini_report.md
-	
-	cat ${loc}/${folder_names[3]}/user_rsa_persis.pub | tee -a ${loc}/${folder_names[3]}/mini_report.md
-	
-	echo -e "
-\'\'\'
-
-Root
-\'\'\'
-" >> ${loc}/${folder_names[3]}/mini_report.md
-	
-	cat ${loc}/${folder_names[3]}/root_rsa_persis.pub | tee -a 
-
-echo -e "
-\'\'\'
-" >> ${loc}/${folder_names[3]}/mini_report.md
-
-printf "\n${GREEN}[+]${NC} fs_setup complete..."
+    printf "\n${GREEN}[+]${NC} fs_setup complete...\n"
 }
 setup_fs
 
@@ -268,6 +235,7 @@ setup_fs
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Notes..."
+i_progress=$((i_progress+1))
 copyNotes() {
   cp -r ${PWNBOX_SCRIPT_DIR}/Generated_Commands/ ${loc}/
 }
@@ -285,6 +253,7 @@ printf "\n${GREEN}[+]${NC} Notes Copied..."
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Searching for wordlists..."
+i_progress=$((i_progress+1))
 seclist_dir=$(find / -type d -name "SecLists" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
 if [ -z "$seclist_dir" ]; then
   printf "${YELLOW}[-]${NC} SecLists directory not found... \n"
@@ -312,6 +281,7 @@ printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting notes...\n"
+i_progress=$((i_progress+1))
 
 formatNotes() {
 
@@ -355,7 +325,9 @@ formatNotes
 printf "\n${GREEN}[+]${NC} Notes formatted..."
 
 
-
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Waiting for background processes to finish..."
+i_progress=$((i_progress+1))
+wait
 
 chmod -R 777 ${loc}
 printf "\n${GREEN}DONE!!!\n"
