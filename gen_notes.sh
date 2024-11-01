@@ -12,6 +12,11 @@ inf= # network interface
 loc= # location of where all the files from this script will be put
 box_ip= # the IP of the target box
 box_host= # the hostname of the target box with domain extension for DNS stuff
+rtemp=
+wpapi=
+
+i_progress=1
+t_progress=5
 
 PWNBOX_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # the directory of where the script is being run, reference to copy notes from
 
@@ -49,12 +54,37 @@ usage() {
 	"
 }
 
-inf=
-box_name=
-box_ip=
-box_host=
-rtemp=
-wpapi=
+usage() {
+	echo -e "
+	${NC}usage: pwnbox -d DEVICE -o NAME -i IP -n HOST -r TEMPLATE -w TOKEN
+
+	OPTIONS:
+
+	-h 			 	show this menu
+
+	-d DEVICE  		network interface of target network
+	
+	-o NAME   		target box name (does not need to = HOST)
+	
+	-i IP     		ip of the target box
+
+	-n HOST   		(optional)
+
+	-r TEMPLATE 	 	select a report template (1-6)
+						leave blank, or use 0 for default
+					
+						Templates (Default 1)   				
+						
+						1. OSCP whoisflynn
+						2. OSCP v2
+						3. OSWE xl_sec
+						4. OSWP v1
+						5. OSED v1
+						6. OSEP ceso
+
+	-w TOKEN		 	(optional) wordpress api token
+	"
+}
 
 while getopts “:hd:t:o:i:n:r:w:” OPTION
 do
@@ -64,10 +94,10 @@ do
       exit 1
       ;;
     d)
-      inf=$OPTARG # Network Interface (e.g. eth0, tun0...)
+      inf=$OPTARG
       ;;
     o)
-      box_name=$OPTARG # preferrably hostname of the box with a .tld (e.g. publisher.thm)
+      box_name=$OPTARG
       ;;
     i)
       box_ip=$OPTARG
@@ -136,138 +166,103 @@ troubleshooting () {
 troubleshooting
 
 
-
-
-
-
-
-
-
-setup_fs () {
-	loc=$(pwd)/${box_name}
-	basic_fs=("${box_name}_report.md" "${box_name}_proofs.md")
-	folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
-	sub_recon=("nmap")
-	sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
-	sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
-	ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
-	rep_temps=(
+loc=$(pwd)/${box_name}
+basic_fs=("${box_name}_report.md" "${box_name}_proofs.md")
+folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
+sub_recon=("nmap")
+sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
+sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
+ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
+rep_temps=(
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_OS_v2.md"
-		"https://raw.githubusercontent.cosm/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"
+		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWE-exam-report-template_xl-sec_v1.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWP-exam-report-template_OS_v1.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSED-exam-report-template_OS_v1.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSEP-exam-report-template_ceso_v1.md"
 	)
 
-	printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
-	i_progress=$((i_progress+1))
+setup_fs () {
 
-	mkdir ${loc}
+    printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
+    i_progress=$((i_progress+1))
 
-	# create basic file and folder structure
-	for file in "${basic_fs[@]}"; do
-		touch ${loc}/${file}
-	done
-	for folder_name in "${folder_names[@]}"; do
-		mkdir ${loc}/${folder_name}
-		touch ${loc}/${folder_name}/${folder_name}_mini_report.md
-	done
+    mkdir -p ${loc}
 
+    # Create basic file and folder structure
+    for file in "${basic_fs[@]}"; do
+        touch ${loc}/${file}
+    done
+    for folder_name in "${folder_names[@]}"; do
+        mkdir -p ${loc}/${folder_name}
+        touch ${loc}/${folder_name}/${folder_name}_mini_report.md
+    done
 
-	# create subfolders and files for tools and services that are used often because the folders will likely be made anyway
-	# also enhance notetaking with mini report files that act as a place to dump relevant information
-	for dir in "${sub_recon[@]}"; do
-		mkdir ${loc}/${folder_names[0]}/${dir}
-		touch ${loc}/${folder_names[0]}/${dir}/mini_report.md
-	done
-	for service in "${sub_enum[@]}"; do
-		mkdir ${loc}/${folder_names[1]}/${service}
-		touch ${loc}/${folder_names[1]}/${service}/mini_report.md
-	done
-	for toolname in "${misc_tools[@]}"; do
-		mkdir ${loc}/${folder_names[4]}/${toolname}
-		touch ${loc}/${folder_names[4]}/${toolname}/mini_report.md
-	done
-	for ad_action in "${ad_actions[@]}"; do
-			touch ${loc}/${folder_names[5]}/${ad_action}.md
-	done
+    # Create subfolders and files for tools and services
+    for dir in "${sub_recon[@]}"; do
+        mkdir -p ${loc}/${folder_names[0]}/${dir}
+        touch ${loc}/${folder_names[0]}/${dir}/mini_report.md
+    done
+    for service in "${sub_enum[@]}"; do
+        mkdir -p ${loc}/${folder_names[1]}/${service}
+        touch ${loc}/${folder_names[1]}/${service}/mini_report.md
+    done
+    for toolname in "${sub_misc_tools[@]}"; do
+        mkdir -p ${loc}/${folder_names[4]}/${toolname}
+        touch ${loc}/${folder_names[4]}/${toolname}/mini_report.md
+    done
+    for ad_action in "${ad_actions[@]}"; do
+        touch ${loc}/${folder_names[5]}/${ad_action}.md
+    done
 
+    # Get basic scripts for exploiting low-hanging fruit
+    xpURLs=(
+        "https://raw.githubusercontent.com/Arrexel/phpbash/refs/heads/master/phpbash.php"
+    )
+    for url in "${xpURLs[@]}"; do  # Correctly reference xpURLs
+        echo "WGET XP $url..."
+        if ! wget -O ${loc}/${folder_names[2]}/$(basename "$url") "$url" ; then
+            echo "Warning: Failed to download $url"
+        fi
+    done
 
-	# get basic scripts for exploiting low hanging fruit
-	xpURLs=(
-		"https://raw.githubusercontent.com/Arrexel/phpbash/refs/heads/master/phpbash.php"
-		)
-	for url in "${urls[privURLs]}"; do
-	    echo "WGET XP $url..."
-	    
-	    # Attempt to download the file
-	    if ! wget -O ${loc}/${folder_names[2]}/$(basename "$url") "$url"; then
-	        # If wget fails, print a warning message
-	        echo "Warning: Failed to download $url"
-	    fi
-	done
+    # Get basic privesc scripts for Linux and Windows
+    privURLs=(
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas.sh"
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas_small.sh"
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/winPEAS.bat"
+        "https://raw.githubusercontent.com/rebootuser/LinEnum/refs/heads/master/LinEnum.sh"
+    )
 
+    for url in "${privURLs[@]}"; do  # Correctly reference privURLs
+        echo "WGET PRIVESC $url..."
+        if ! wget -O ${loc}/${folder_names[3]}/$(basename "$url") "$url" ; then
+            echo "Warning: Failed to download $url"
+        fi
+    done
 
-	# get basic privesc scripts for linux and windows, if not available, then links are provided in privesc notes
-	privURLs=(
-		"https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas.sh"
-		"https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas_small.sh"
-		"https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/winPEAS.bat"
-		"https://raw.githubusercontent.com/rebootuser/LinEnum/refs/heads/master/LinEnum.sh"
-		)
+    # Generate SSH keys
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_rsa_persis -N ""
+    chmod 600 ${loc}/${folder_names[3]}/user_rsa_persis
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/root_rsa_persis -N ""
+    chmod 600 ${loc}/${folder_names[3]}/root_rsa_persis
 
+    # Add public SSH keys to the mini report
+    {
+        echo -e "### New Usable SSH Pub Keys\n\n> add to ~/.ssh/authorized_keys\n\nUser\n\`\`\`"
+        cat ${loc}/${folder_names[3]}/user_rsa_persis.pub
+        echo -e "\n\`\`\`\n\nRoot\n\`\`\`"
+        cat ${loc}/${folder_names[3]}/root_rsa_persis.pub
+        echo -e "\n\`\`\`"
+    } >> ${loc}/${folder_names[3]}/mini_report.md
 
-	for url in "${urls[privURLs]}"; do
-	    echo "WGET PRIVESC $url..."
-	    
-	    # Attempt to download the file
-	    if ! wget -O ${loc}/${folder_names[3]}/$(basename "$url") "$url"; then
-	        # If wget fails, print a warning message
-	        echo "Warning: Failed to download $url"
-	    fi
-	done
-
-
-	# generate ssh keys to be used in the future (add to authorized keys on target machine)
-	echo "${loc}/${folder_names[3]}/user_rsa_persis" | ssh-keygen -t rsa -b 4096 -C "your_email@example.com"; chmod 600 ${loc}/${folder_names[3]}/user_rsa_persis; 
-	echo "${loc}/${folder_names[3]}/root_rsa_persis" | ssh-keygen -t rsa -b 4096 -C "your_email@example.com"; chmod 600 ${loc}/${folder_names[3]}/root_rsa_persis; 
-	# add public ssh keys to privesc/persis report
-	echo -e "
-### New Usable SSH Pub Keys
-
-> add to ~/.ssh/authorized_keys
-
-User
-\'\'\'
-" >> ${loc}/${folder_names[3]}/mini_report.md
-	
-	cat ${loc}/${folder_names[3]}/user_rsa_persis.pub | tee -a ${loc}/${folder_names[3]}/mini_report.md
-	
-	echo -e "
-\'\'\'
-
-Root
-\'\'\'
-" >> ${loc}/${folder_names[3]}/mini_report.md
-	
-	cat ${loc}/${folder_names[3]}/root_rsa_persis.pub | tee -a 
-
-echo -e "
-\'\'\'
-" >> ${loc}/${folder_names[3]}/mini_report.md
-
-printf "\n${GREEN}[+]${NC} fs_setup complete..."
+    printf "\n${GREEN}[+]${NC} fs_setup complete...\n"
 }
 setup_fs
 
 
-
-
-
-
-
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Notes..."
+i_progress=$((i_progress+1))
 copyNotes() {
   cp -r ${PWNBOX_SCRIPT_DIR}/Generated_Commands/ ${loc}/
 }
@@ -275,16 +270,8 @@ copyNotes
 printf "\n${GREEN}[+]${NC} Notes Copied..."
 
 
-
-
-
-
-
-
-
-
-
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Searching for wordlists..."
+i_progress=$((i_progress+1))
 seclist_dir=$(find / -type d -name "SecLists" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
 if [ -z "$seclist_dir" ]; then
   printf "${YELLOW}[-]${NC} SecLists directory not found... \n"
@@ -311,7 +298,26 @@ imp_dir="${imp_dir}/examples"
 printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 
 
+
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting...\n"
+i_progress=$((i_progress+1))
+reoprting () {
+
+	rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
+	printf "\n${BLUE}[Template] ${NC}${rtemp_name}\n"
+
+	if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
+		sudo mv eisvogel/eisvogel.latex /usr/share/pandoc/data/templates/eisvogel.latex
+		rm -
+	fi
+}
+reporting
+printf "\n${GREEN}[+]${NC} Reporting Setup\n"
+
+
+
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting notes...\n"
+i_progress=$((i_progress+1))
 
 formatNotes() {
 
@@ -328,7 +334,7 @@ formatNotes() {
       ["\${directory_list2}"]="${directory_list2}"
       ["\${user_list}"]="${user_list}"
       ["\${pass_list}"]="${pass_list}"
-      ["\${loc}/\${folder_names[4]}"]="${loc}/${folder_names[4]}"
+      ["\${loc}"]="${loc}"
       # Add more pairs as needed
   )
 
@@ -350,10 +356,8 @@ formatNotes() {
 
   echo "Notes formatted"
 }
-
 formatNotes
 printf "\n${GREEN}[+]${NC} Notes formatted..."
-
 
 
 
