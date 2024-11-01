@@ -105,7 +105,7 @@ Reference: *link*
 
 **Local.txt Proof Screenshot**
 
-![x](screenshots-storage/image.png)
+![x](8-screenshots/image.png)
 
 **Local.txt Contents**
 
@@ -140,7 +140,7 @@ Reference: *link*
 
 **Proof Screenshot Here:**
 
-![x](screenshots-storage/image.png)
+![x](8-screenshots/image.png)
 
 **Proof.txt Contents:**
 

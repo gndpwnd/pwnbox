@@ -54,38 +54,6 @@ usage() {
 	"
 }
 
-usage() {
-	echo -e "
-	${NC}usage: pwnbox -d DEVICE -o NAME -i IP -n HOST -r TEMPLATE -w TOKEN
-
-	OPTIONS:
-
-	-h 			 	show this menu
-
-	-d DEVICE  		network interface of target network
-	
-	-o NAME   		target box name (does not need to = HOST)
-	
-	-i IP     		ip of the target box
-
-	-n HOST   		(optional)
-
-	-r TEMPLATE 	 	select a report template (1-6)
-						leave blank, or use 0 for default
-					
-						Templates (Default 1)   				
-						
-						1. OSCP whoisflynn
-						2. OSCP v2
-						3. OSWE xl_sec
-						4. OSWP v1
-						5. OSED v1
-						6. OSEP ceso
-
-	-w TOKEN		 	(optional) wordpress api token
-	"
-}
-
 while getopts “:hd:t:o:i:n:r:w:” OPTION
 do
   case $OPTION in
@@ -174,7 +142,8 @@ sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
 sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
 ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
 rep_temps=(
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_OS_v2.md"
+		"pwnbox default"
+    "https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_OS_v2.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWE-exam-report-template_xl-sec_v1.md"
 		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWP-exam-report-template_OS_v1.md"
@@ -215,48 +184,7 @@ setup_fs () {
         touch ${loc}/${folder_names[5]}/${ad_action}.md
     done
 
-    # Get basic scripts for exploiting low-hanging fruit
-    xpURLs=(
-        "https://raw.githubusercontent.com/Arrexel/phpbash/refs/heads/master/phpbash.php"
-    )
-    for url in "${xpURLs[@]}"; do  # Correctly reference xpURLs
-        echo "WGET XP $url..."
-        if ! wget -O ${loc}/${folder_names[2]}/$(basename "$url") "$url" ; then
-            echo "Warning: Failed to download $url"
-        fi
-    done
-
-    # Get basic privesc scripts for Linux and Windows
-    privURLs=(
-        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas.sh"
-        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas_small.sh"
-        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/winPEAS.bat"
-        "https://raw.githubusercontent.com/rebootuser/LinEnum/refs/heads/master/LinEnum.sh"
-    )
-
-    for url in "${privURLs[@]}"; do  # Correctly reference privURLs
-        echo "WGET PRIVESC $url..."
-        if ! wget -O ${loc}/${folder_names[3]}/$(basename "$url") "$url" ; then
-            echo "Warning: Failed to download $url"
-        fi
-    done
-
-    # Generate SSH keys
-    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_rsa_persis -N ""
-    chmod 600 ${loc}/${folder_names[3]}/user_rsa_persis
-    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/root_rsa_persis -N ""
-    chmod 600 ${loc}/${folder_names[3]}/root_rsa_persis
-
-    # Add public SSH keys to the mini report
-    {
-        echo -e "### New Usable SSH Pub Keys\n\n> add to ~/.ssh/authorized_keys\n\nUser\n\`\`\`"
-        cat ${loc}/${folder_names[3]}/user_rsa_persis.pub
-        echo -e "\n\`\`\`\n\nRoot\n\`\`\`"
-        cat ${loc}/${folder_names[3]}/root_rsa_persis.pub
-        echo -e "\n\`\`\`"
-    } >> ${loc}/${folder_names[3]}/mini_report.md
-
-    printf "\n${GREEN}[+]${NC} fs_setup complete...\n"
+    printf "\n${GREEN}[+]${NC} fs organization complete...\n"
 }
 setup_fs
 
@@ -301,15 +229,18 @@ printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting...\n"
 i_progress=$((i_progress+1))
-reoprting () {
+reporting() {
 
 	rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
 	printf "\n${BLUE}[Template] ${NC}${rtemp_name}\n"
 
-	if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
-		sudo mv eisvogel/eisvogel.latex /usr/share/pandoc/data/templates/eisvogel.latex
-		rm -
-	fi
+  if rtemp=0; then
+    mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template_basic.md ${loc}/${box_name}_report.md
+  fi
+
+	#if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
+	#	sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel.latex /usr/share/pandoc/data/templates/eisvogel.latex
+	#fi
 }
 reporting
 printf "\n${GREEN}[+]${NC} Reporting Setup\n"
@@ -318,7 +249,6 @@ printf "\n${GREEN}[+]${NC} Reporting Setup\n"
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting notes...\n"
 i_progress=$((i_progress+1))
-
 formatNotes() {
 
   # Dictionary for search-and-replace strings
@@ -353,6 +283,10 @@ formatNotes() {
   find . -type f -name "*.md" | while read -r file; do
       replace_in_file "$file"
   done
+  # Find and process all bash files (this is why external scripts are downloaded later)
+  find . -type f -name "*.sh" | while read -r file; do
+      replace_in_file "$file"
+  done
 
   echo "Notes formatted"
 }
@@ -360,6 +294,51 @@ formatNotes
 printf "\n${GREEN}[+]${NC} Notes formatted..."
 
 
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Grabbing some scripts...\n"
+lowhangfruit(){
+    # Get basic scripts for exploiting low-hanging fruit
+    xpURLs=(
+        "https://raw.githubusercontent.com/Arrexel/phpbash/refs/heads/master/phpbash.php"
+    )
+    for url in "${xpURLs[@]}"; do  # Correctly reference xpURLs
+        echo "WGET XP $url..."
+        if ! wget -O ${loc}/${folder_names[2]}/$(basename "$url") "$url" ; then
+            echo "Warning: Failed to download $url"
+        fi
+    done
+
+    # Get basic privesc scripts for Linux and Windows
+    privURLs=(
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas.sh"
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas_small.sh"
+        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/winPEAS.bat"
+        "https://raw.githubusercontent.com/rebootuser/LinEnum/refs/heads/master/LinEnum.sh"
+    )
+
+    for url in "${privURLs[@]}"; do  # Correctly reference privURLs
+        echo "WGET PRIVESC $url..."
+        if ! wget -O ${loc}/${folder_names[3]}/$(basename "$url") "$url" ; then
+            echo "Warning: Failed to download $url"
+        fi
+    done
+
+    # Generate SSH keys
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_rsa_persis -N ""
+    chmod 600 ${loc}/${folder_names[3]}/user_rsa_persis
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/root_rsa_persis -N ""
+    chmod 600 ${loc}/${folder_names[3]}/root_rsa_persis
+
+    # Add public SSH keys to the mini report
+    {
+        echo -e "### New Usable SSH Pub Keys\n\n> add to ~/.ssh/authorized_keys\n\nUser\n\`\`\`"
+        cat ${loc}/${folder_names[3]}/user_rsa_persis.pub
+        echo -e "\n\`\`\`\n\nRoot\n\`\`\`"
+        cat ${loc}/${folder_names[3]}/root_rsa_persis.pub
+        echo -e "\n\`\`\`"
+    } >> ${loc}/${folder_names[3]}/mini_report.md
+}
+lowhangfruit
+printf "\n${GREEN}[+]${NC} scripts grabbed..."
 
 chmod -R 777 ${loc}
 printf "\n${GREEN}DONE!!!\n"
