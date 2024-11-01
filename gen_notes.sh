@@ -18,6 +18,7 @@ wpapi=
 i_progress=1
 t_progress=6
 
+script_date=$(date +"%D")
 PWNBOX_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # the directory of where the script is being run, reference to copy notes from
 
 usage() {
@@ -137,7 +138,7 @@ troubleshooting () {
 troubleshooting
 
 
-loc=$(pwd)/${box_name}
+export loc=$(pwd)/${box_name}
 basic_fs=("${box_name}_report.md" "${box_name}_proofs.md")
 folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
 sub_recon=("nmap")
@@ -156,8 +157,8 @@ rep_temps=(
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
+i_progress=$((i_progress+1))
 setup_fs () {
-    i_progress=$((i_progress+1))
 
     mkdir -p ${loc}
 
@@ -227,8 +228,6 @@ imp_dir=$(echo $imp_dirs | tr '\n' ' '| cut -f1 -d ' ')
 imp_dir="${imp_dir}/examples"
 printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 
-
-
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting...\n"
 i_progress=$((i_progress+1))
 reporting() {
@@ -240,9 +239,13 @@ reporting() {
     mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template_basic.md ${loc}/${box_name}_report.md
   fi
 
-	#if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
-	#	sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel.latex /usr/share/pandoc/data/templates/eisvogel.latex
-	#fi
+  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/change_box_info.sh"
+  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
+  sed -i "s|BOXNAME|${box_name}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
+  sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
+  sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
+  sed -i "s|REPORTDATE|${script_date}|g" "${loc}/${box_name}_report.md"
+  sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
 }
 reporting
 printf "\n${GREEN}[+]${NC} Reporting Setup\n"
@@ -341,7 +344,11 @@ lowhangfruit(){
 lowhangfruit
 printf "\n${GREEN}[+]${NC} scripts grabbed..."
 
-sed -i "s/BOXLOCATION/${loc}/g" ${loc}/Generated_Commands/1\ -\ Reporting/change_box_info.sh
-printf "\nMake sure to run the following:\n\n     sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts"
 chmod -R 777 ${loc}
+
+printf "\nMake sure to run the following:\n\n     sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts"
+if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
+ printf "\n\nRun this as well:\n\n     sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.latex /usr/share/pandoc/data/templates/eisvogel.latex"
+fi
+
 printf "\n${GREEN}DONE!!!\n"

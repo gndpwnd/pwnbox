@@ -1,7 +1,7 @@
 ---
 title: "${box_name} Report"
-author: ["${USER}"]
-date: "$(date +"%D")"
+author: ["REPORTAUTHOR"]
+date: "REPORTDATE"
 subject: "Markdown"
 keywords: [Markdown, Example]
 subtitle: "Box Report"
@@ -36,7 +36,6 @@ The specific IP address was:
 The penetration testing portions of the assessment focus heavily on gaining access to a variety of systems.
 During this penetration test, I was able to successfully gain access to the ${box_name} machine.
 
-\\newpage
 
 ### System IP: ${box_ip}
 
@@ -51,7 +50,6 @@ Server IP Address | Ports Open
 ------------------|----------------------------------------
 ${box_ip}      | **TCP: ${tcp}** \ **UDP: ${udp}**
 
-\\newpage
 
 **Nmap Scan Results:**
 
@@ -79,7 +77,6 @@ Notable Output:
 
 ```
 
-\\newpage
 
 #### Initial Access
 
@@ -95,13 +92,11 @@ Reference: *link*
 
 **Severity:** Critical
 
-\\newpage
 
 **Exploit Code:**
 
 Reference: *link*
 
-\\newpage
 
 **Local.txt Proof Screenshot**
 
@@ -113,7 +108,6 @@ Reference: *link*
 localtxt
 ```
 
-\\newpage
 
 #### Privilege Escalation
 
@@ -130,13 +124,11 @@ Reference: *link*
 
 **Severity:** Critical
 
-\\newpage
 
 **Exploit Code:**
 
 Reference: *link*
 
-\\newpage
 
 **Proof Screenshot Here:**
 
@@ -148,7 +140,6 @@ Reference: *link*
 prooftxt
 ```
 
-\\newpage
 
 ## Maintaining Access
 
@@ -165,7 +156,6 @@ Ensuring that we are meticulous and no remnants of our penetration test are left
 After collecting trophies from the ${box_name} machine was completed, I removed all user accounts, passwords, and malicious codes used during the penetration test.
 Technicians should not have to remove any user accounts or services from the system.
 
-\\newpage
 
 # Appendix - Additional Items
 
@@ -175,15 +165,12 @@ IP (Hostname) | Local.txt Contents | Proof.txt Contents
 --------------|--------------------|-------------------
 ${box_ip}   |  localtxt | prooftxt
 
-\\newpage
 
 ## Appendix - /etc/passwd contents
 
 ```txt
 
 ```
-
-\\newpage
 
 ## Appendix - /etc/shadow contents
 
