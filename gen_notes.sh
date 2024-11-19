@@ -238,6 +238,8 @@ i_progress=$((i_progress+1))
 reporting() {
   # make a dumpfile for making the larger report
   mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
+  # be able to change box info quickly
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/change_box_info.sh ${loc}/
 
 	rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
 	printf "\n${BLUE}[Template] ${NC}${rtemp_name}\n"
@@ -250,6 +252,9 @@ reporting() {
   sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
   sed -i "s|BOXNAME|${box_name}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
   sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
+
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/report_gen.sh ${loc}/
+
   sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
   sed -i "s|REPORTDATE|${script_date}|g" "${loc}/${box_name}_report.md"
   sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
@@ -294,11 +299,11 @@ formatNotes() {
   }
 
   # Find and process all markdown files
-  find . -type f -name "*.md" | while read -r file; do
+  find ${loc} -type f -name "*.md" | while read -r file; do
       replace_in_file "$file"
   done
   # Find and process all bash files (this is why external scripts are downloaded later)
-  find . -type f -name "*.sh" | while read -r file; do
+  find ${loc} -type f -name "*.sh" | while read -r file; do
       replace_in_file "$file"
   done
 
@@ -306,6 +311,7 @@ formatNotes() {
 }
 formatNotes
 printf "\n${GREEN}[+]${NC} Notes formatted..."
+
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Grabbing some scripts...\n"

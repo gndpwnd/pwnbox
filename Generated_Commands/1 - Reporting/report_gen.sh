@@ -11,7 +11,7 @@ BLUE='\033[0;34m'
 
 PARENT_DIR="BOXLOCATION"
 box_name="BOXNAME"
-screenshots_dir="SCREENSHOTSDIR"
+screenshots_dir= "${PARENT_DIR}/SCREENSHOTSDIR"
 
 printf "${YELLOW}[-] Generating report...\n"
 
@@ -33,6 +33,9 @@ printf "${GREEN}[+] Report generated\n"
 printf "${YELLOW}[-] Removing Empty Files and Folders FS...\n"
 
 find ${PARENT_DIR} -empty -delete
+
+# Don't need my notes across every single excersise, just the report and relevant files
+rm -rf ${PARENT_DIR}/Generated_Commands/
 
 printf "${GREEN}[+] Removed Empty Files and Folders...\n"
 
