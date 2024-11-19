@@ -11,9 +11,12 @@ unset GREP_OPTIONS
 inf= # network interface
 loc= # location of where all the files from this script will be put
 box_ip= # the IP of the target box
+ipurl= # web address if website
 box_host= # the hostname of the target box with domain extension for DNS stuff
+hosturl= # web address if website
 rtemp=
 wpapi=
+web1=80 # default http port
 
 i_progress=1
 t_progress=6
@@ -70,9 +73,11 @@ do
       ;;
     i)
       box_ip=$OPTARG
+      ipurl="http://${box_ip}"
       ;;
     n)
       box_host=$OPTARG
+      hosturl="http://${box_host}"
       ;;
     r)
       rtemp=$OPTARG
@@ -161,7 +166,7 @@ i_progress=$((i_progress+1))
 setup_fs () {
 
     mkdir -p ${loc}
-
+    
     # Create basic file and folder structure
     for file in "${basic_fs[@]}"; do
         touch ${loc}/${file}
@@ -174,18 +179,18 @@ setup_fs () {
     # Create subfolders and files for tools and services
     for dir in "${sub_recon[@]}"; do
         mkdir -p ${loc}/${folder_names[0]}/${dir}
-        touch ${loc}/${folder_names[0]}/${dir}/mini_report.md
+        touch ${loc}/${folder_names[0]}/${dir}/${sub_recon[@]}_mini_report.md
     done
     for service in "${sub_enum[@]}"; do
         mkdir -p ${loc}/${folder_names[1]}/${service}
-        touch ${loc}/${folder_names[1]}/${service}/mini_report.md
+        touch ${loc}/${folder_names[1]}/${service}/${sub_enum[@]}_mini_report.md
     done
     for toolname in "${sub_misc_tools[@]}"; do
         mkdir -p ${loc}/${folder_names[4]}/${toolname}
-        touch ${loc}/${folder_names[4]}/${toolname}/mini_report.md
+        touch ${loc}/${folder_names[4]}/${toolname}/${sub_misc_tools[@]}_mini_report.md
     done
     for ad_action in "${ad_actions[@]}"; do
-        touch ${loc}/${folder_names[5]}/${ad_action}.md
+        touch ${loc}/${folder_names[5]}/${ad_action}_mini_report.md
     done
 }
 setup_fs
@@ -231,6 +236,8 @@ printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting...\n"
 i_progress=$((i_progress+1))
 reporting() {
+  # make a dumpfile for making the larger report
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
 
 	rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
 	printf "\n${BLUE}[Template] ${NC}${rtemp_name}\n"
@@ -260,7 +267,10 @@ formatNotes() {
       ["\${inf}"]="${inf}"
       ["\${box_name}"]="${box_name}"
       ["\${box_ip}"]="${box_ip}"
+      ["\${ipurl}"]="${ipurl}"
       ["\${box_host}"]="${box_host}"
+      ["\${hosturl}"]="${hosturl}"
+      ["\${web1}"]="${web1}"
       ["\${rtemp}"]="${rtemp}"
       ["\${wpapi}"]="${wpapi}"
       ["\${imp_dir}"]="${imp_dir}"
