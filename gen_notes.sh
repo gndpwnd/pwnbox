@@ -177,20 +177,20 @@ setup_fs () {
     done
 
     # Create subfolders and files for tools and services
-    for dir in "${sub_recon[@]}"; do
-        mkdir -p ${loc}/${folder_names[0]}/${dir}
-        touch ${loc}/${folder_names[0]}/${dir}/${sub_recon[@]}_mini_report.md
+    for recon_tool in "${sub_recon[@]}"; do
+        mkdir -p ${loc}/${folder_names[0]}/${recon_tool}
+        touch ${loc}/${folder_names[0]}/${recon_tool}/${recon_tool}_mini_report.md
     done
     for service in "${sub_enum[@]}"; do
         mkdir -p ${loc}/${folder_names[1]}/${service}
-        touch ${loc}/${folder_names[1]}/${service}/${sub_enum[@]}_mini_report.md
+        touch ${loc}/${folder_names[1]}/${service}/${service}_mini_report.md
     done
-    for toolname in "${sub_misc_tools[@]}"; do
-        mkdir -p ${loc}/${folder_names[4]}/${toolname}
-        touch ${loc}/${folder_names[4]}/${toolname}/${sub_misc_tools[@]}_mini_report.md
+    for misc_tool in "${sub_misc_tools[@]}"; do
+        mkdir -p ${loc}/${folder_names[4]}/${misc_tool}
+        touch ${loc}/${folder_names[4]}/${misc_tool}/${misc_tool}_mini_report.md
     done
     for ad_action in "${ad_actions[@]}"; do
-        touch ${loc}/${folder_names[5]}/${ad_action}_mini_report.md
+        touch ${loc}/${folder_names[5]}/AD_${ad_action}_mini_report.md
     done
 }
 setup_fs
@@ -349,7 +349,7 @@ lowhangfruit(){
         echo -e "\n\`\`\`\n\nRoot\n\`\`\`"
         cat ${loc}/${folder_names[3]}/root_rsa_persis.pub
         echo -e "\n\`\`\`"
-    } >> ${loc}/${folder_names[3]}/mini_report.md
+    } >> ${loc}/${folder_names[3]}/${folder_names[3]}_mini_report.md
 }
 lowhangfruit
 printf "\n${GREEN}[+]${NC} scripts grabbed..."
