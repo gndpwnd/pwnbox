@@ -1,4 +1,3 @@
-```bash
 #!/bin/bash
 
 while true; do
@@ -917,4 +916,3 @@ echo -e "
 "
 sleep 0.20
 done
-```
