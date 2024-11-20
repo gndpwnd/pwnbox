@@ -236,29 +236,40 @@ printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting...\n"
 i_progress=$((i_progress+1))
 reporting() {
-  # make a dumpfile for making the larger report
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
-
-	rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
+  
+  # copy the right report template
+  rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
 	printf "\n${BLUE}[Template] ${NC}${rtemp_name}\n"
 
   if rtemp=0; then
     mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template_basic.md ${loc}/${box_name}_report.md
+    sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
+    sed -i "s|REPORTDATE|${script_date}|g" "${loc}/${box_name}_report.md"
+    sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
   fi
 
-  # be able to change box info quickly
+  # make a dumpfile to help with making the larger report
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
+
+  # customize helpful scripts to the environment 
+
+  # script be able to change box info quickly
   sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/change_box_info.sh"
   mv ${loc}/Generated_Commands/1\ -\ Reporting/change_box_info.sh ${loc}/
 
+  # script to scan for sensitive information
+  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/sensitive_scan.sh"
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/sensitive_scan.sh ${loc}/
+
+  # script to generate reports
   sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
   sed -i "s|BOXNAME|${box_name}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
   sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
-
   mv ${loc}/Generated_Commands/1\ -\ Reporting/report_gen.sh ${loc}/
 
-  sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
-  sed -i "s|REPORTDATE|${script_date}|g" "${loc}/${box_name}_report.md"
-  sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
+  # script for cleaning up the workspace when done
+  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/cleanup.sh"
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/cleanup.sh ${loc}/
 }
 reporting
 printf "\n${GREEN}[+]${NC} Reporting Setup\n"
