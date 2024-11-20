@@ -238,8 +238,6 @@ i_progress=$((i_progress+1))
 reporting() {
   # make a dumpfile for making the larger report
   mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
-  # be able to change box info quickly
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/change_box_info.sh ${loc}/
 
 	rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
 	printf "\n${BLUE}[Template] ${NC}${rtemp_name}\n"
@@ -248,7 +246,10 @@ reporting() {
     mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template_basic.md ${loc}/${box_name}_report.md
   fi
 
+  # be able to change box info quickly
   sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/change_box_info.sh"
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/change_box_info.sh ${loc}/
+
   sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
   sed -i "s|BOXNAME|${box_name}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
   sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
@@ -360,7 +361,10 @@ lowhangfruit(){
 lowhangfruit
 printf "\n${GREEN}[+]${NC} scripts grabbed..."
 
-chmod -R 777 ${loc}
+# update file permissions
+find "$loc" -type f -exec chmod 664 {} \;
+find "$loc" -type d -exec chmod 775 {} \;
+find "$loc" -type f -name "*.sh" -exec chmod 777 {} \;
 
 printf "\nMake sure to run the following:\n\n     sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts"
 if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then

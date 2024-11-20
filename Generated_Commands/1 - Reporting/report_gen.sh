@@ -11,7 +11,7 @@ BLUE='\033[0;34m'
 
 PARENT_DIR="BOXLOCATION"
 box_name="BOXNAME"
-screenshots_dir= "${PARENT_DIR}/SCREENSHOTSDIR"
+screenshots_dir="${PARENT_DIR}/SCREENSHOTSDIR"
 
 printf "${YELLOW}[-] Generating report...\n"
 
@@ -33,6 +33,7 @@ printf "${GREEN}[+] Report generated\n"
 printf "${YELLOW}[-] Removing Empty Files and Folders FS...\n"
 
 find ${PARENT_DIR} -empty -delete
+find ${PARENT_DIR} -empty -delete # once more just to confirm
 
 # Don't need my notes across every single excersise, just the report and relevant files
 rm -rf ${PARENT_DIR}/Generated_Commands/
@@ -53,7 +54,7 @@ printf "${YELLOW}[-] Removing Bloat Files...\n"
 for filename in "${bloat_files[@]}"; do
     # Find and delete the file(s) matching the current filename
     find . -type f -name "$filename" -exec rm -f {} \;
-    printf "       ${BLUE}Deleted all instances of ${CYAN}${filename}\n"
+    #printf "       ${BLUE}Deleted all instances of ${CYAN}${filename}\n"
 done
 
 printf "${GREEN}[+] Removed Bloat Files\n"
