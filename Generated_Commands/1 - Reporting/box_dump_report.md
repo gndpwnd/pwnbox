@@ -1,3 +1,9 @@
+remove empty files and folders
+
+```bash
+find ${PARENT_DIR} -empty -delete
+```
+
 # Recon
 
 ### Rustscan
@@ -6,9 +12,11 @@
 
 # Enumeration
 
+### DNS
+
 ### WEB
 
-### DNS
+### OSINT
 
 ### FTP
 
@@ -21,6 +29,10 @@
 ### SMTP
 
 ### SNMP
+
+### IMAP
+
+### POP3
 
 # Exploitation
 

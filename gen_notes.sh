@@ -147,7 +147,7 @@ export loc=$(pwd)/${box_name}
 basic_fs=("${box_name}_report.md" "${box_name}_proofs.md")
 folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
 sub_recon=("nmap")
-sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns")
+sub_enum=("web" "ftp" "smtp" "snmp" "smb" "nfs" "dns" "pop3" "imap" "OSINT")
 sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
 ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
 rep_temps=(
@@ -249,6 +249,7 @@ reporting() {
   fi
 
   # make a dumpfile to help with making the larger report
+  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/box_dump_report.md"
   mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
 
   # customize helpful scripts to the environment 
