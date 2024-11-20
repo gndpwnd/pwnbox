@@ -14,7 +14,7 @@ find ${PARENT_DIR} -empty -delete
 
 ### DNS
 
-### WEB
+### WEB Part 1
 
 ### OSINT
 
@@ -34,9 +34,11 @@ find ${PARENT_DIR} -empty -delete
 
 ### POP3
 
+### WEB Part 2
+
 # Exploitation
 
-### CVE-XXXX-XXXXX
+### CVE-XXXX-XXXXX or Exploit-DB XXXXX
 
 [CVE-XXXX-XXXXX URL](http://google.com)
 
