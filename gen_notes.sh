@@ -366,11 +366,11 @@ lowhangfruit(){
     # Add public SSH keys to the mini report
     {
         echo -e "### New Usable SSH Pub Keys\n\n> add to ~/.ssh/authorized_keys\n\nUser\n\`\`\`echo \""
-        cat ${loc}/${folder_names[3]}/user_rsa_persis.pub
+        cat ${loc}/${folder_names[3]}/user_persis.rsa.pub
         echo -e " >> /home/user/.ssh/authorized_keys" 
 
         echo -e "\n\`\`\`\n\nRoot\n\`\`\`echo \""
-        cat ${loc}/${folder_names[3]}/root_rsa_persis.pub
+        cat ${loc}/${folder_names[3]}/root_persis.rsa.pub
         echo -e " >> /root/.ssh/authorized_keys\n\`\`\`"
     } >> ${loc}/${folder_names[3]}/${folder_names[3]}_mini_report.md
 }
