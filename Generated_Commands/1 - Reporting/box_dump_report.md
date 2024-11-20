@@ -1,9 +1,3 @@
-remove empty files and folders
-
-```bash
-find ${PARENT_DIR} -empty -delete
-```
-
 # Recon
 
 ### Rustscan

