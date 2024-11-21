@@ -29,6 +29,10 @@ pwnbox.sh -d DEVICE -n NAME -i IP -n HOSTNAME
 * IP is the target box ip
 * HOSTNAME is the target box hostname
 
+![pwnbox_run.png](imgs/pwnbox_run.png)
+
+![pwnbox_obsidian.png](imgs/pwnbox_obsidian.png)
+
 **Example Usages:**
 
 ```

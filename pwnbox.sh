@@ -109,7 +109,7 @@ sub_enum=("web" "ftp" "sql" "smtp" "snmp" "smb" "nfs" "dns" "pop3" "imap" "OSINT
 sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
 ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs" "Pivot" "Privesc")
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS..."
+printf "${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS..."
 i_progress=$((i_progress+1))
 setup_fs () {
     mkdir -p ${loc}
@@ -135,7 +135,7 @@ setup_fs () {
     done
 }
 setup_fs
-printf "\n${GREEN}[+]${NC} fs organization complete..."
+printf "\n${GREEN}[+]${NC} FS Setup Complete..."
 
 
 
@@ -149,7 +149,7 @@ printf "\n${GREEN}[+]${NC} Notes Copied..."
 
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Searching for wordlists..."
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Searching For Wordlists..."
 i_progress=$((i_progress+1))
 
 seclist_dir=$(find / -type d -name "SecLists" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
@@ -175,11 +175,11 @@ if [ -z "$imp_dirs" ]; then
 fi
 imp_dir=$(echo $imp_dirs | tr '\n' ' '| cut -f1 -d ' ')
 imp_dir="${imp_dir}/examples"
-printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
+printf "\n${GREEN}[+]${NC} Search For Wordlists Complete..."
 
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting..."
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting Up Reporting..."
 i_progress=$((i_progress+1))
 reporting() {
 
@@ -197,7 +197,7 @@ reporting() {
         sed -i "s|REPORTDATE|${script_date}|g" "$file"
 
         # Check if file is *.md
-        if [[ "$file" != *.md ]]; then
+        if [[ "$file" != *.md && "$file" != *.tex ]]; then
             # if its a .sh file, just move it to the main dir
             mv "$file" "$loc/"
         fi
@@ -214,7 +214,7 @@ printf "\n${GREEN}[+]${NC} Reporting Setup"
 
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting notes..."
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting Notes..."
 i_progress=$((i_progress+1))
 formatNotes() {
 
@@ -258,11 +258,11 @@ formatNotes() {
   done
 }
 formatNotes
-printf "\n${GREEN}[+]${NC} Notes formatted..."
+printf "\n${GREEN}[+]${NC} Notes Formatted..."
 
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Generating useful files...\n"
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Generating Useful Files...\n"
 usefulFiles(){
 
     # Generate SSH keys
@@ -282,7 +282,7 @@ usefulFiles(){
     } >> ${loc}/${folder_names[3]}/${folder_names[3]}_mini_report.md
 }
 usefulFiles
-printf "\n${GREEN}[+]${NC} Generated useful files..."
+printf "${GREEN}[+]${NC} Generated Useful Files...\n"
 
 # update file permissions
 find "$loc" -type f -exec chmod 664 {} \;
@@ -290,14 +290,14 @@ find "$loc" -type d -exec chmod 775 {} \;
 find "$loc" -type f -name "*.sh" -exec chmod 777 {} \;
 
 # add box to /etc/hosts
-printf "\n${YELLOW}[-]${NC}Make sure to run the following:\n${CYAN}sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts${NC}"
+printf "\n\n${YELLOW}[-]${NC} Make sure to run the following:\n${CYAN}sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts${NC}\n"
 
 # check if pandoc template for report exists on system where it should be
-if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
- printf "\n${YELLOW}[-]${NC}Run this as well:\n${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.latex /usr/share/pandoc/data/templates/eisvogel.latex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}"
+if [ ! -e /usr/share/pandoc/data/templates/eisvogel.tex ]; then
+ printf "${YELLOW}[-]${NC} Run this as well:\n${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.tex /usr/share/pandoc/data/templates/eisvogel.tex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}\n"
 fi
 
 # make sure you can quickly access lots of useful scripts for uploading/running on a target machine
-printf "\n${YELLOW}[-]${NC}Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh\n${NC}"
+printf "${YELLOW}[-]${NC} Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh${NC}\n"
 
-printf "\n${GREEN}DONE!!!\n"
+printf "\n\n${GREEN}DONE!!!\n"
