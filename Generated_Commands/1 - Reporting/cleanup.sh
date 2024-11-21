@@ -11,12 +11,7 @@ rm -rf ${PARENT_DIR}/Generated_Commands/
 
 # files that are copied or downloaded every time gen_notes is run
 bloat_files=(
-    "linpeas.sh"
-    "LinEnum.sh"
     "eisvogel_2.5.0.tex"
-    "phpbash.php"
-    "winPEAS.bat"
-    "linpeas_small.sh"
     "hydra.restore"
 )
 printf "${YELLOW}[-] Removing Bloat Files...\n"
@@ -26,6 +21,9 @@ for filename in "${bloat_files[@]}"; do
     find . -type f -name "$filename" -exec rm -f {} \;
     #printf "       ${BLUE}Deleted all instances of ${CYAN}${filename}\n"
 done
+
+# remove obsidian files
+find . -type d -name ".obsidian" -exec rm -rf {} \;
 
 printf "${GREEN}[+] Removed Bloat Files\n"
 

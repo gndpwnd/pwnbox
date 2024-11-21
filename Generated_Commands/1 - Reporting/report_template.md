@@ -101,6 +101,7 @@ Reference: *link*
 **Local.txt Proof Screenshot**
 
 ![x](8-screenshots/image.png)
+*image caption*
 
 **Local.txt Contents**
 
@@ -133,6 +134,7 @@ Reference: *link*
 **Proof Screenshot Here:**
 
 ![x](8-screenshots/image.png)
+*image caption*
 
 **Proof.txt Contents:**
 

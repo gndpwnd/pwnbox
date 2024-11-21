@@ -15,12 +15,10 @@ screenshots_dir="${PARENT_DIR}/SCREENSHOTSDIR"
 
 printf "${YELLOW}[-] Generating report...\n"
 
-TEXINPUTS="${PARENT_DIR}/Generated_Commands/1\ -\ Reporting/templates/"
-
 pandoc ${PARENT_DIR}/${box_name}_report.md \
 -o ${PARENT_DIR}/${box_name}_report.pdf \
 --from markdown+yaml_metadata_block+raw_html \
---template="eisvogel_2.5.0.tex" \
+--template eisvogel \
 --table-of-contents \
 --toc-depth 6 \
 --number-sections \

@@ -5,6 +5,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
+CYAN='\033[0;36m'
 
 unset GREP_OPTIONS
 
@@ -14,9 +15,9 @@ box_ip= # the IP of the target box
 ipurl= # web address if website
 box_host= # the hostname of the target box with domain extension for DNS stuff
 hosturl= # web address if website
-rtemp=
-wpapi=
 web1=80 # default http port
+
+WPAPITOKEN=
 
 i_progress=1
 t_progress=6
@@ -26,39 +27,26 @@ PWNBOX_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # the director
 
 usage() {
 	echo -e "
-	${NC}usage: $0 -d DEVICE -n NAME -i IP -n HOSTNAME -r TEMPLATE -w TOKEN
+	${NC}usage: $0 -d DEVICE -n NAME -i IP -n HOSTNAME -w TOKEN
 
 	OPTIONS:
 
-	-h 			 	show this menu
+	-h 			 	    show this menu
 
 	-d DEVICE  		network interface of target network
 	
-	-n NAME   		target box name (does not need to = HOST)
+	-n NAME   		target box name (does not need to = HOSTNAME)
 	
 	-i IP     		ip of the target box
 
-	-n HOSTNAME   	(optional) hostname of the target box
-					You can always run the gen_commands script
-					with only the hostname later.
-
-	-r TEMPLATE 	 	select a report template (1-6)
-						leave blank, or use 0 for default
-					
-						Templates (Default 1)   				
-						
-						1. OSCP whoisflynn
-						2. OSCP v2
-						3. OSWE xl_sec
-						4. OSWP v1
-						5. OSED v1
-						6. OSEP ceso
+	-n HOSTNAME   hostname of the target box
 
 	-w TOKEN		 	(optional) wordpress api token
+                Get started for free at https://wpscan.com/
 	"
 }
 
-while getopts “:hd:t:o:i:n:r:w:” OPTION
+while getopts “:hd:t:o:i:n:w:” OPTION
 do
   case $OPTION in
     h)
@@ -79,10 +67,6 @@ do
       box_host=$OPTARG
       hosturl="http://${box_host}"
       ;;
-    r)
-      rtemp=$OPTARG
-      ;;
-
     w)
       wpapi=$OPTARG
       ;;
@@ -90,7 +74,7 @@ do
       usage
       exit
       ;;
-	:)
+	  :)
       echo "Option -$OPTARG requires an argument."
       exit 1
       ;;
@@ -102,10 +86,6 @@ done
 ##############################
 
 troubleshooting () {
-	#if (( $EUID != 0 )); then
-	#	printf "${RED}[x] sudo privileges not detected!!!\n"
-	#	exit 1
-	#fi
 
 	# If Required Args are empty
 
@@ -113,28 +93,19 @@ troubleshooting () {
 		printf "${RED}[x] (-d) No Network Interface Provided!!!\n"
 		exit 1
 	elif [ -z ${box_name} ]; then
-		printf "${RED}[x] (-o) No Name Provided!!! \n"
+		printf "${RED}[x] (-o) No Box Name Provided!!! \n"
 		exit 1
 	elif [ -z ${box_ip} ]; then
 		printf "${RED}[x] (-i) No IP Provided... \n"
 		exit 1
   elif [ -z ${box_host} ]; then
-		printf "${RED}[x] (-n) No hostname provided!!! At least give box name with a '.tld'. You can change all the scripts later with Generated_Commands/change_hostname.sh\n"
+		printf "${RED}[x] (-n) No Hostname provided!!! \nAt least give box name with a '.tld'. You can change all the scripts later with change_box_info.sh\n"
 		exit 1
 	fi
 
-	# Handle Optional Args
-	if [ -z $rtemp ]; then
-		rtemp=1
-	fi
-	rtemp=$((${rtemp}-1 ))
-
-	if [ -z $wpapi ]; then
-		printf "${YELLOW}[o] No wpscan token provided...\n"
-		printf "${YELLOW}[o] Get started for free at${NC} https://wpscan.com/\n"
-		printf "${YELLOW}[o] Moving on...\n"
-	else
-		wpapi2="--api-token ${wpapi} "
+  # if optional args are not empty
+	if [ -n $wpapi ]; then
+    WPAPITOKEN="--api-token ${wpapi} "
 	fi
 
 	attack_ip=$(ip a s | grep $inf | grep inet | cut -f2 -d "t" | cut -f2 -d " " | cut -f1 -d "/")
@@ -142,48 +113,29 @@ troubleshooting () {
 }
 troubleshooting
 
-
 export loc=$(pwd)/${box_name}
-basic_fs=("${box_name}_report.md" "${box_name}_proofs.md")
 folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
 sub_recon=("nmap")
 sub_enum=("web" "ftp" "sql" "smtp" "snmp" "smb" "nfs" "dns" "pop3" "imap" "OSINT")
 sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
-ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs")
-rep_temps=(
-		"pwnbox default"
-    "https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_OS_v2.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSCP-exam-report-template_whoisflynn_v3.2.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWE-exam-report-template_xl-sec_v1.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSWP-exam-report-template_OS_v1.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSED-exam-report-template_OS_v1.md"
-		"https://raw.githubusercontent.com/noraj/OSCP-Exam-Report-Template-Markdown/master/src/OSEP-exam-report-template_ceso_v1.md"
-	)
-
+ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs" "Pivot" "Privesc")
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
 i_progress=$((i_progress+1))
 setup_fs () {
-
     mkdir -p ${loc}
-    
-    # Create basic file and folder structure
-    for file in "${basic_fs[@]}"; do
-        touch ${loc}/${file}
-    done
     for folder_name in "${folder_names[@]}"; do
         mkdir -p ${loc}/${folder_name}
         touch ${loc}/${folder_name}/${folder_name}_mini_report.md
     done
-
     # Create subfolders and files for tools and services
     for recon_tool in "${sub_recon[@]}"; do
         mkdir -p ${loc}/${folder_names[0]}/${recon_tool}
         touch ${loc}/${folder_names[0]}/${recon_tool}/${recon_tool}_mini_report.md
     done
-    for service in "${sub_enum[@]}"; do
-        mkdir -p ${loc}/${folder_names[1]}/${service}
-        touch ${loc}/${folder_names[1]}/${service}/${service}_mini_report.md
+    for enum_service in "${sub_enum[@]}"; do
+        mkdir -p ${loc}/${folder_names[1]}/${enum_service}
+        touch ${loc}/${folder_names[1]}/${enum_service}/${enum_service}_mini_report.md
     done
     for misc_tool in "${sub_misc_tools[@]}"; do
         mkdir -p ${loc}/${folder_names[4]}/${misc_tool}
@@ -196,7 +148,6 @@ setup_fs () {
 setup_fs
 printf "\n${GREEN}[+]${NC} fs organization complete...\n"
 
-
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Notes..."
 i_progress=$((i_progress+1))
 copyNotes() {
@@ -208,17 +159,18 @@ printf "\n${GREEN}[+]${NC} Notes Copied..."
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Searching for wordlists..."
 i_progress=$((i_progress+1))
+
 seclist_dir=$(find / -type d -name "SecLists" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
 if [ -z "$seclist_dir" ]; then
   printf "${YELLOW}[-]${NC} SecLists directory not found... \n"
-  printf "${YELLOW}[-]${NC} Attempting to download SecLists... \n"
-  git clone https://github.com/danielmiessler/SecLists.git
+  printf "${YELLOW}[-]${NC} Attempting to download SecLists to ~/Downloads/ ... \n"
+  git clone https://github.com/danielmiessler/SecLists.git ~/Downloads/
   seclist_dir=$(find / -type d -name "SecLists" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
 fi
 
-domain_list="${seclist_dir}/DNS/subdomains-top1000000.txt"
 directory_list1="/usr/share/wordlists/dirb/big.txt"
 directory_list2="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
+domain_list="${seclist_dir}/DNS/subdomains-top1000000.txt"
 user_list="${seclist_dir}/Usernames/xato-net-10-million-usernames.txt"
 pass_list="${seclist_dir}/Passwords/xato-net-10-million-passwords-1000000.txt"
 
@@ -236,43 +188,32 @@ printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting...\n"
 i_progress=$((i_progress+1))
 reporting() {
-  
-  # copy the right report template
-  rtemp_name=$(echo ${rep_temps[${rtemp}]} | rev | cut -f1 -d "/" | rev | cut -f1 -d ".")
-	printf "\n${BLUE}[Template] ${NC}${rtemp_name}\n"
 
-  if rtemp=0; then
-    mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template_basic.md ${loc}/${box_name}_report.md
-    sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
-    sed -i "s|REPORTDATE|${script_date}|g" "${loc}/${box_name}_report.md"
-    sed -i "s|REPORTAUTHOR|${USER}|g" "${loc}/${box_name}_report.md"
-  fi
+  # Replace variables in helpful scripts and markdown files with values of variables found in this script
+  for file in ${loc}/Generated_Commands/1\ -\ Reporting/*; do
+    if [[ -f "$file" ]]; then
+        echo "Processing file: $file"
 
-  echo -e "## USER\n\n\`\`\`\n\`\`\`\n\n\n## ROOT\n\n\`\`\`\n\`\`\`" >> ${loc}/${box_name}_proofs.md 
+        # Perform sed replacements
+        sed -i "s|BOXLOCATION|${loc}|g" "$file"
+        sed -i "s|PARENT_DIR|${loc}|g" "$file"
+        sed -i "s|BOXNAME|${box_name}|g" "$file"
+        sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "$file"
+        sed -i "s|REPORTAUTHOR|${USER}|g" "$file"
+        sed -i "s|REPORTDATE|${script_date}|g" "$file"
 
-  # make a dumpfile to help with making the larger report
-  sed -i "s|PARENT_DIR|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/box_dump_report.md"
+        # Check if file is *.md
+        if [[ "$file" != *.md ]]; then
+            # if its a .sh file, just move it to the main dir
+            mv "$file" "$loc/"
+        fi
+    fi
+  done
+
   mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
+  echo -e "## USER\n\n\`\`\`\n\`\`\`\n\n\n## ROOT\n\n\`\`\`\n\`\`\`" >> ${loc}/${box_name}_proofs.md 
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template.md ${loc}/${box_name}_report.md
 
-  # customize helpful scripts to the environment 
-
-  # script be able to change box info quickly
-  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/change_box_info.sh"
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/change_box_info.sh ${loc}/
-
-  # script to scan for sensitive information
-  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/sensitive_scan.sh"
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/sensitive_scan.sh ${loc}/
-
-  # script to generate reports
-  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
-  sed -i "s|BOXNAME|${box_name}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
-  sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "${loc}/Generated_Commands/1 - Reporting/report_gen.sh"
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/report_gen.sh ${loc}/
-
-  # script for cleaning up the workspace when done
-  sed -i "s|BOXLOCATION|${loc}|g" "${loc}/Generated_Commands/1 - Reporting/cleanup.sh"
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/cleanup.sh ${loc}/
 }
 reporting
 printf "\n${GREEN}[+]${NC} Reporting Setup\n"
@@ -299,6 +240,7 @@ formatNotes() {
       ["\${user_list}"]="${user_list}"
       ["\${pass_list}"]="${pass_list}"
       ["\${loc}"]="${loc}"
+      ["\${WPAPITOKEN}"]="${WPAPITOKEN}"
       # Add more pairs as needed
   )
 
@@ -329,33 +271,8 @@ printf "\n${GREEN}[+]${NC} Notes formatted..."
 
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Grabbing some scripts...\n"
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} generating useful files...\n"
 lowhangfruit(){
-    # Get basic scripts for exploiting low-hanging fruit
-    xpURLs=(
-        "https://raw.githubusercontent.com/Arrexel/phpbash/refs/heads/master/phpbash.php"
-    )
-    for url in "${xpURLs[@]}"; do  # Correctly reference xpURLs
-        echo "WGET XP $url..."
-        if ! wget -O ${loc}/${folder_names[2]}/$(basename "$url") "$url" ; then
-            echo "Warning: Failed to download $url"
-        fi
-    done
-
-    # Get basic privesc scripts for Linux and Windows
-    privURLs=(
-        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas.sh"
-        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/linpeas_small.sh"
-        "https://github.com/peass-ng/PEASS-ng/releases/download/20241011-f83883c6/winPEAS.bat"
-        "https://raw.githubusercontent.com/rebootuser/LinEnum/refs/heads/master/LinEnum.sh"
-    )
-
-    for url in "${privURLs[@]}"; do  # Correctly reference privURLs
-        echo "WGET PRIVESC $url..."
-        if ! wget -O ${loc}/${folder_names[3]}/$(basename "$url") "$url" ; then
-            echo "Warning: Failed to download $url"
-        fi
-    done
 
     # Generate SSH keys
     ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_persis.rsa -N ""
@@ -381,9 +298,12 @@ find "$loc" -type f -exec chmod 664 {} \;
 find "$loc" -type d -exec chmod 775 {} \;
 find "$loc" -type f -name "*.sh" -exec chmod 777 {} \;
 
-printf "\nMake sure to run the following:\n\n     sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts"
+printf "\n${YELLOW}[-]${NC}Make sure to run the following:\n\n${CYAN}sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts${NC}"
+
 if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
- printf "\n\nRun this as well:\n\n     sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.latex /usr/share/pandoc/data/templates/eisvogel.latex"
+ printf "\n\n${YELLOW}[-]${NC}Run this as well:\n\n     ${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.latex /usr/share/pandoc/data/templates/eisvogel.latex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}"
 fi
+
+printf "\n\n${YELLOW}[-]${NC}Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh\n${NC}"
 
 printf "\n${GREEN}DONE!!!\n"

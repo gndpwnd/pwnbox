@@ -28,6 +28,8 @@
 
 ### POP3
 
+### Remote Desktop
+
 ### WEB Part 2
 
 # Exploitation
@@ -50,14 +52,18 @@ http://google.com
 
 # Active Directory
 
-### Forest
+## AD Forest
 
-### Bloodhound / View
+## AD Bloodhound / View
 
-### LDAP
+## AD LDAP
 
-### Groups
+## AD Groups
 
-### Users
+## AD Users
 
-### Kerberos
+## AD Kerberos
+
+## AD Pivot
+
+## AD Privesc
