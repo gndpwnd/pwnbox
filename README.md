@@ -2,7 +2,19 @@
 
 ***TLDR:*** *This entire project is based on my preference for notetaking and the reporting process for CTFs and pentesting.*
 
-How many times have you typed *mkdir nmap* then start typing *nmap -v...*?
+How many times have you typed
+
+```
+mkdir nmap
+``` 
+
+then started to type
+
+```
+nmap -v...
+```
+
+???
 
 ***PWNBOX*** was created to automate the highly repetitive tasks for CTFs and pentesting alike. 
 
@@ -24,8 +36,10 @@ pwnbox.sh -d DEVICE -n NAME -i IP -n HOSTNAME
 ```
 
 ```
-❯ pwnbox -d tun0 -o CTFBoxImmaPwn -i 10.10.8.194 -n boxname.thm
+❯ pwnbox -d tun0 -n CTFBoxImmaPwn -i 10.10.8.194 -n boxname.thm
 ```
+
+I use obsidian for notetaking. After I run pwnbox, I just open the folder that pwnbox creates from the *-n* argument as the vault folder for obsidian.
 
 ## Setup FS
 
@@ -35,7 +49,7 @@ TLDR: Its just personal preference feel free to skip
 
 I like my notes organized in a manner that replicates the pen testing process:
 
-1. Step one - Reconnisance
+1. Step one - Reconnaissance
 2. Step two - Enumeration
 3. Exploitation
 4. Persistence
@@ -62,7 +76,7 @@ Quick Reference: [noraj's repo](https://github.com/noraj/OSCP-Exam-Report-Templa
 
 **Generating A Report**
 
-I aggregate all my mini reports into *box_dump_report.md* where I can more effectively lay out my notes chronilogically. Once my "report dump" is complete, I can write a more polished report by editing the generated *box_name_report.md* file. Then I can simply run the following to generate a pdf version:
+I aggregate all my mini reports into *box_dump_report.md* where I can more effectively lay out my notes chronologically. Once my "report dump" is complete, I can write a more polished report by editing the generated *box_name_report.md* file. Then I can simply run the following to generate a pdf version:
 
 ```
 ./report_gen.sh

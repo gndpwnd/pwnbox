@@ -100,6 +100,8 @@ troubleshooting () {
 }
 troubleshooting
 
+
+
 export loc=$(pwd)/${box_name}
 folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
 sub_recon=("nmap")
@@ -107,7 +109,7 @@ sub_enum=("web" "ftp" "sql" "smtp" "snmp" "smb" "nfs" "dns" "pop3" "imap" "OSINT
 sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
 ad_actions=("Accounts" "Groups" "Services" "Account_Perms" "Group_Perms" "Pwn_Paths" "Machines" "Shares" "Kerberos" "Certs" "Pivot" "Privesc")
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS...\n"
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up Basic FS..."
 i_progress=$((i_progress+1))
 setup_fs () {
     mkdir -p ${loc}
@@ -133,7 +135,9 @@ setup_fs () {
     done
 }
 setup_fs
-printf "\n${GREEN}[+]${NC} fs organization complete...\n"
+printf "\n${GREEN}[+]${NC} fs organization complete..."
+
+
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Notes..."
 i_progress=$((i_progress+1))
@@ -142,6 +146,7 @@ copyNotes() {
 }
 copyNotes
 printf "\n${GREEN}[+]${NC} Notes Copied..."
+
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Searching for wordlists..."
@@ -172,14 +177,16 @@ imp_dir=$(echo $imp_dirs | tr '\n' ' '| cut -f1 -d ' ')
 imp_dir="${imp_dir}/examples"
 printf "\n${GREEN}[+]${NC} Search for wordlists complete..."
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting...\n"
+
+
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting up reporting..."
 i_progress=$((i_progress+1))
 reporting() {
 
   # Replace variables in helpful scripts and markdown files with values of variables found in this script
   for file in ${loc}/Generated_Commands/1\ -\ Reporting/*; do
     if [[ -f "$file" ]]; then
-        echo "Processing file: $file"
+        #echo "Processing file: $file"
 
         # Perform sed replacements
         sed -i "s|BOXLOCATION|${loc}|g" "$file"
@@ -203,10 +210,11 @@ reporting() {
 
 }
 reporting
-printf "\n${GREEN}[+]${NC} Reporting Setup\n"
+printf "\n${GREEN}[+]${NC} Reporting Setup"
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting notes...\n"
+
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting notes..."
 i_progress=$((i_progress+1))
 formatNotes() {
 
@@ -248,21 +256,19 @@ formatNotes() {
   find ${loc} -type f -name "*.sh" | while read -r file; do
       replace_in_file "$file"
   done
-
-  echo "Notes formatted"
 }
 formatNotes
 printf "\n${GREEN}[+]${NC} Notes formatted..."
 
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} generating useful files...\n"
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Generating useful files...\n"
 usefulFiles(){
 
     # Generate SSH keys
-    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_persis.rsa -N ""
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_persis.rsa -N "" > /dev/null 2>&1
     chmod 600 ${loc}/${folder_names[3]}/user_persis.rsa
-    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/root_persis.rsa -N ""
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/root_persis.rsa -N "" > /dev/null 2>&1
     chmod 600 ${loc}/${folder_names[3]}/root_persis.rsa
 
     # Add public SSH keys to the mini report
@@ -276,7 +282,7 @@ usefulFiles(){
     } >> ${loc}/${folder_names[3]}/${folder_names[3]}_mini_report.md
 }
 usefulFiles
-printf "\n${GREEN}[+]${NC} created useful files..."
+printf "\n${GREEN}[+]${NC} Generated useful files..."
 
 # update file permissions
 find "$loc" -type f -exec chmod 664 {} \;
@@ -284,14 +290,14 @@ find "$loc" -type d -exec chmod 775 {} \;
 find "$loc" -type f -name "*.sh" -exec chmod 777 {} \;
 
 # add box to /etc/hosts
-printf "\n${YELLOW}[-]${NC}Make sure to run the following:\n\n${CYAN}sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts${NC}"
+printf "\n${YELLOW}[-]${NC}Make sure to run the following:\n${CYAN}sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts${NC}"
 
 # check if pandoc template for report exists on system where it should be
 if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
- printf "\n\n${YELLOW}[-]${NC}Run this as well:\n\n     ${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.latex /usr/share/pandoc/data/templates/eisvogel.latex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}"
+ printf "\n${YELLOW}[-]${NC}Run this as well:\n${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.latex /usr/share/pandoc/data/templates/eisvogel.latex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}"
 fi
 
 # make sure you can quickly access lots of useful scripts for uploading/running on a target machine
-printf "\n\n${YELLOW}[-]${NC}Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh\n${NC}"
+printf "\n${YELLOW}[-]${NC}Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh\n${NC}"
 
 printf "\n${GREEN}DONE!!!\n"

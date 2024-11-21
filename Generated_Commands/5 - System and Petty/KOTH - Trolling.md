@@ -1,4 +1,4 @@
-### SSH session fuckery
+### SSH session trolling
 
 ```
 ssh2keep={1 2} 
@@ -7,21 +7,25 @@ ssh2boot=({1..20}); while true; do for session in "${ssh2boot[@]}"; do if [[ ! "
 ```
 
 
-### SSH Service fuckery
+### SSH Service trolling
 
 **run a command on an ssh session when it starts**
 
 ```bash
 nano /home/user/.ssh/rc
+```
 
-
+place this command
+```bash
 bash /dev/shm/parrot.sh
+```
 
-or 
-
+or this command:
+```bash
 while true; do for i in $(seq 1 5); do clear; printf "\n\n\r     Loading$(printf '.%.0s' $(seq 1 $i)) \n\n"; sleep 0.5; done; done
+```
 
-
+```bash
 chmod 777 /home/user/.ssh/rc
 ```
 
