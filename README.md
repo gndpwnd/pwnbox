@@ -1,109 +1,101 @@
+# Readme
 
-## About pwnbox
+***TLDR:*** *This entire project is based on my preference for notetaking and the reporting process for CTFs and pentesting.*
 
-> **DISCLAIMER**
-> Root privileges are used for the following functions:
-> 1. Appending entries to /etc/hosts
-> 2. Utilization of network interfaces
+How many times have you typed *mkdir nmap* then start typing *nmap -v...*?
 
-### Files and Folders
+***PWNBOX*** was created to automate the highly repetitive tasks for CTFs and pentesting alike. 
 
-***pwnbox*** generates a file system optimized for easily taking and stashing notes while pwning a box.
-
-### Commands 2 Run
-
-***pwnbox*** creates a *cmds2run* folder in which syntax for many common tools is customized with variables and then echoed to files for easy use.
-Future versions of ***pwnbox*** might include a script that runs these commands automagically.
-
-For now, you can use *pwnbox-gen-commands* to generate commands manually.
-
-- only an IP or a hostname is required
-- you can run with both, and additionally add a /etc/hosts entry
-- pwnbox does not automatically generate commands for hostnames yet. 
-
-**Example Usage:**
+## Usage
 
 ```
-pwnbox-gen-commands -d eth0 -i 10.10.10.1 -o ${HOME}/Documents/box_2_pwn/
-
-pwnbox-gen-commands -d eth0 -n name.tld -o ${HOME}/Documents/box_2_pwn/
-
-pwnbox-gen-commands -d eth0 -i 10.10.10.1 -n name.tld -o ${HOME}/Documents/box_2_pwn/
+pwnbox.sh -d DEVICE -n NAME -i IP -n HOSTNAME
 ```
 
-### Reporting 
+* The DEVICE is your network interface used to interact with the target box over the network 
+* NAME is just the output folder
+* IP is the target box ip
+* HOSTNAME is the target box hostname
 
-**Report Template**
+**Example Usages:**
 
-***pwnbox*** downloads a template, written in markdown, for speeding up the reporting process. ***pwnbox*** also creates a customized script of which can in turn be used to generate a pdf version of your completed markdown report. 
+```
+❯ pwnbox -d eth0 -n BoxImmaPwn -i 192.168.0.13 -n boxname.local
+```
+
+```
+❯ pwnbox -d tun0 -o CTFBoxImmaPwn -i 10.10.8.194 -n boxname.thm
+```
+
+## Setup FS
+
+```
+TLDR: Its just personal preference feel free to skip
+```
+
+I like my notes organized in a manner that replicates the pen testing process:
+
+1. Step one - Reconnisance
+2. Step two - Enumeration
+3. Exploitation
+4. Persistence
+5. Privilege Escalation
+6. Reporting
+
+Hence creating a folder for every step of the process. Then ***PWNBOX*** aims to dive deeper and create subfolders for various tools, services, and attributes of each step of this proccess. 
+
+Following exposure to industry-level cybersecurity certificaions I realized how demanding the reporting process really can be and how professional and organized one must be to generate a good report. The demand to be organized is even greater to generate a professional report in a timely manner.
+
+I am not a very organized person when it comes to taking notes. A blank report file "miniature report" is generated in every subfolder (aptly named after a pentesting subprocess) so I can keep track of all information relative to that subprocess, but I don't have to worry about making it a polished report just yet. At the same time I don't just have data thrown everywhere in my file system; I know where to go to reference it later.
+
+## Copy Notes
+
+Simply copies notes accrued from previous CTFs to the current one. These notes will be deleted with [helpful scripts](#helpful-scripts) so that they don't take up space on a system repetitively.
+
+## Wordlists, Imp
+
+Searches your system for where you installed [SecLists](https://github.com/danielmiessler/SecLists.git) and [Impacket](https://github.com/SecureAuthCorp/impacket.git) for a reference point when formatting notes. This feature is admittedly very rough around the edges.
+
+## Reporting
 
 Quick Reference: [noraj's repo](https://github.com/noraj/OSCP-Exam-Report-Template-Markdown)
 
-**Cleaning Up**
-
-For even more conveniance, the generated reporting script will delete all empty files and folders clogging up your workspace filesystem. The script will only do so using the parent directory specified in the reporting script.
-
-**Dependencies for Reporting:**
-
-- [Pandoc](https://pandoc.org/installing.html)
-- LaTex for pdflatex or xelates
-- [Eisvogel Padoc LaTex PDF Template](https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/eisvogel.tex)
-- [p7zip](http://p7zip.sourceforge.net/)
-
 **Generating A Report**
 
-
-1. write your report by editing the generated *box_name_report.md* file.
-2. run *report_gen.sh* in the directory specified when running ***pwnbox***.
-3. Run the following:
+I aggregate all my mini reports into *box_dump_report.md* where I can more effectively lay out my notes chronilogically. Once my "report dump" is complete, I can write a more polished report by editing the generated *box_name_report.md* file. Then I can simply run the following to generate a pdf version:
 
 ```
 ./report_gen.sh
 ```
 
-## Basic pwnbox Usage
+## Format Notes
 
-```
-pwnbox <attacking_network_interface> <box_name> <box_ip> <report_template> <enable_AD> <wpscan_api_token>
-```
+This is a function that uses alot of *SED* commands to find various strings throughout the markdown notes and replaces them with variables currently running in the pwnbox script. This way commands that were once useful for pwning one box are now tuned to fit the box you are currently pwning. 
 
-**Example Usage:**
+## Useful Files
 
-```
-pwnbox -d eth0 -o testmachine -i 192.168.0.1
+Creates some files that are handy to have. For example a brand new ssh key to add to authorized_keys on a target system. SO much nicer than typing a password every time.
 
-pwnbox -d eth0 -o testmachine -i 192.168.0.1 -r2
+## Helpful Scripts 
 
-pwnbox -d tun0 -o machine_on_vpn -i 10.10.10.23 -r3 -w 123456789
-```
+Just scripts to help manage all the files
 
-## Install
+**change_box_info.sh**
 
-All the install script does is add aliases.
-NOTE: Recommended running install script as root.
+Your target box timed out? The IP changed on you? but you just generated all those commands tuned specifically to that one system!!! Yeah just change the old IP to a new one. This script also can change the hostname and if you want to use a different network interface.
 
-**Usage:**
+**cleanup.sh**
 
-```
-./install.sh
-```
+Removes files that bloat your system. Like hydra.restore and the files obsidian leaves behind for git to pick up.
 
-If needed, refresh your aliases...
+**get_scripts.sh**
 
-```
-source ~/.bash_aliases
-source ~/.zshrc
-```
-## Setting up your pwning ENV variables
+Not necessary to run for every new target box. This just sets up a directory (outside of the one pwnbox creates) that you can quickly *cd* to, spin up a file sharing service, and download/upload some common tools to a target box without needing to do things like "googling linpeas.sh"
 
-> This script opens the door for you to use your favorite pwn tools with simplified variables.
+**report_gen.sh**
 
-1. You will need to run *box_vars.sh* in each new terminal window you open.
-2. This script is meant to be edited as you move further along pwning a box
-3. You will need to run this script after making any changes in order to update env variables.
+covered in [Reporting](#reporting)
 
+**sensitive_scan.sh**
 
-**Usage:**
-```
-. ./box_vars.sh
-```
+Aims to scan all files for content that github would deem sensitive to upload. Then remove that content from files and place it into  *./sensitive.md* for the user to review.

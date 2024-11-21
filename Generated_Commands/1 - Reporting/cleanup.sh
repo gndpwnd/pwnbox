@@ -9,7 +9,7 @@ PARENT_DIR="BOXLOCATION"
 # Don't need my notes across every single excersise, just the report and relevant files
 rm -rf ${PARENT_DIR}/Generated_Commands/
 
-# files that are copied or downloaded every time gen_notes is run
+# files that are copied or downloaded every time pwnbox is run
 bloat_files=(
     "eisvogel_2.5.0.tex"
     "hydra.restore"

@@ -17,8 +17,6 @@ box_host= # the hostname of the target box with domain extension for DNS stuff
 hosturl= # web address if website
 web1=80 # default http port
 
-WPAPITOKEN=
-
 i_progress=1
 t_progress=6
 
@@ -27,7 +25,7 @@ PWNBOX_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # the director
 
 usage() {
 	echo -e "
-	${NC}usage: $0 -d DEVICE -n NAME -i IP -n HOSTNAME -w TOKEN
+	${NC}usage: $0 -d DEVICE -n NAME -i IP -n HOSTNAME
 
 	OPTIONS:
 
@@ -40,9 +38,6 @@ usage() {
 	-i IP     		ip of the target box
 
 	-n HOSTNAME   hostname of the target box
-
-	-w TOKEN		 	(optional) wordpress api token
-                Get started for free at https://wpscan.com/
 	"
 }
 
@@ -66,9 +61,6 @@ do
     n)
       box_host=$OPTARG
       hosturl="http://${box_host}"
-      ;;
-    w)
-      wpapi=$OPTARG
       ;;
     ?)
       usage
@@ -101,11 +93,6 @@ troubleshooting () {
   elif [ -z ${box_host} ]; then
 		printf "${RED}[x] (-n) No Hostname provided!!! \nAt least give box name with a '.tld'. You can change all the scripts later with change_box_info.sh\n"
 		exit 1
-	fi
-
-  # if optional args are not empty
-	if [ -n $wpapi ]; then
-    WPAPITOKEN="--api-token ${wpapi} "
 	fi
 
 	attack_ip=$(ip a s | grep $inf | grep inet | cut -f2 -d "t" | cut -f2 -d " " | cut -f1 -d "/")
@@ -233,14 +220,12 @@ formatNotes() {
       ["\${hosturl}"]="${hosturl}"
       ["\${web1}"]="${web1}"
       ["\${rtemp}"]="${rtemp}"
-      ["\${wpapi}"]="${wpapi}"
       ["\${imp_dir}"]="${imp_dir}"
       ["\${directory_list1}"]="${directory_list1}"
       ["\${directory_list2}"]="${directory_list2}"
       ["\${user_list}"]="${user_list}"
       ["\${pass_list}"]="${pass_list}"
       ["\${loc}"]="${loc}"
-      ["\${WPAPITOKEN}"]="${WPAPITOKEN}"
       # Add more pairs as needed
   )
 
@@ -272,7 +257,7 @@ printf "\n${GREEN}[+]${NC} Notes formatted..."
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} generating useful files...\n"
-lowhangfruit(){
+usefulFiles(){
 
     # Generate SSH keys
     ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_persis.rsa -N ""
@@ -290,20 +275,23 @@ lowhangfruit(){
 
     } >> ${loc}/${folder_names[3]}/${folder_names[3]}_mini_report.md
 }
-lowhangfruit
-printf "\n${GREEN}[+]${NC} scripts grabbed..."
+usefulFiles
+printf "\n${GREEN}[+]${NC} created useful files..."
 
 # update file permissions
 find "$loc" -type f -exec chmod 664 {} \;
 find "$loc" -type d -exec chmod 775 {} \;
 find "$loc" -type f -name "*.sh" -exec chmod 777 {} \;
 
+# add box to /etc/hosts
 printf "\n${YELLOW}[-]${NC}Make sure to run the following:\n\n${CYAN}sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts${NC}"
 
+# check if pandoc template for report exists on system where it should be
 if [ ! -e /usr/share/pandoc/data/templates/eisvogel.latex ]; then
  printf "\n\n${YELLOW}[-]${NC}Run this as well:\n\n     ${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.latex /usr/share/pandoc/data/templates/eisvogel.latex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}"
 fi
 
+# make sure you can quickly access lots of useful scripts for uploading/running on a target machine
 printf "\n\n${YELLOW}[-]${NC}Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh\n${NC}"
 
 printf "\n${GREEN}DONE!!!\n"
