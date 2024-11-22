@@ -235,8 +235,8 @@ formatNotes() {
       ["\${user_list}"]="${user_list}"
       ["\${pass_list}"]="${pass_list}"
       ["\${loc}"]="${loc}"
-      ["SUBDOMAIN_LIST1]="${subdomain_list1}"
-      ["SUBDOMAIN_LIST2]="${subdomain_list2}"
+      ["SUBDOMAIN_LIST1"]="${subdomain_list1}"
+      ["SUBDOMAIN_LIST2"]="${subdomain_list2}"
       # Add more pairs as needed
   )
 
