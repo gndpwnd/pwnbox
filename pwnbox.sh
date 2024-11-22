@@ -165,6 +165,8 @@ directory_list2="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
 domain_list="${seclist_dir}/DNS/subdomains-top1000000.txt"
 user_list="${seclist_dir}/Usernames/xato-net-10-million-usernames.txt"
 pass_list="${seclist_dir}/Passwords/xato-net-10-million-passwords-1000000.txt"
+subdomain_list1="${seclist_dir}/Discovery/DNS/subdomains-top1million-5000.txt"
+subdomain_list2="${seclist_dir}/Discovery/DNS/subdomains-top1million-110000.txt"
 
 imp_dirs=$(find / -type d -name 'impacket' -print 2>/dev/null | grep 'impacket')
 if [ -z "$imp_dirs" ]; then
@@ -233,6 +235,8 @@ formatNotes() {
       ["\${user_list}"]="${user_list}"
       ["\${pass_list}"]="${pass_list}"
       ["\${loc}"]="${loc}"
+      ["SUBDOMAIN_LIST1]="${subdomain_list1}"
+      ["SUBDOMAIN_LIST2]="${subdomain_list2}"
       # Add more pairs as needed
   )
 
