@@ -1,6 +1,6 @@
-# Readme
+# PWNBOX
 
-***TLDR:*** *This entire project is based on my preference for notetaking and the reporting process for CTFs and pentesting.*
+***TLDR:*** [PWNBOX](#pwnbox) was created to automate the highly repetitive tasks for CTFs and pentesting alike. Specifically creating a structured evnironment for effective notetaking and synthesising commands for tools commonly used during CTFs. *This entire project is based on my preference for notetaking and the reporting process for CTFs and pentesting.*
 
 How many times have you typed
 
@@ -15,8 +15,6 @@ nmap -v...
 ```
 
 ???
-
-***PWNBOX*** was created to automate the highly repetitive tasks for CTFs and pentesting alike. 
 
 ## Usage
 

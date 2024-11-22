@@ -4,7 +4,7 @@
 box_host=""
 box_ip=""
 inf=""
-loc="BOXLOCATION"
+PARENT_DIR="BOXPARENT_DIRATION"
 
 # Usage instructions
 usage() {
@@ -48,7 +48,7 @@ done
 
 # Function to find relevant files
 find_files() {
-    find ${loc} -type f \( -name "*.md" -o -name "*.sh" \)
+    find ${PARENT_DIR} -type f \( -name "*.md" -o -name "*.sh" \)
 }
 
 # Function to replace IP address
@@ -58,7 +58,7 @@ change_IP() {
     find_files | while read -r file; do
         sed -i "s/$old_ip/$new_ip/g" "$file"
     done
-    echo "IP address changed from $old_ip to $new_ip in all files in directory ${loc}"
+    echo "IP address changed from $old_ip to $new_ip in all files in directory ${PARENT_DIR}"
 }
 
 # Function to replace hostname
@@ -68,7 +68,7 @@ change_HOST() {
     find_files | while read -r file; do
         sed -i "s/$old_host/$new_host/g" "$file"
     done
-    echo "Hostname changed from $old_host to $new_host in all files in directory ${loc}"
+    echo "Hostname changed from $old_host to $new_host in all files in directory ${PARENT_DIR}"
 }
 
 # Function to replace network interface
@@ -78,7 +78,7 @@ change_INTERFACE() {
     find_files | while read -r file; do
         sed -i "s/$old_inf/$new_inf/g" "$file"
     done
-    echo "Network interface changed from $old_inf to $new_inf in all files in directory ${loc}"
+    echo "Network interface changed from $old_inf to $new_inf in all files in directory ${PARENT_DIR}"
 }
 
 main() {

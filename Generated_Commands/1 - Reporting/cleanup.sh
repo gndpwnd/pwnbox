@@ -7,7 +7,9 @@ BLUE='\033[0;34m'
 PARENT_DIR="BOXLOCATION"
 
 # Don't need my notes across every single excersise, just the report and relevant files
+printf "${YELLOW}[-] Generated Commands...\n"
 rm -rf ${PARENT_DIR}/Generated_Commands/
+printf "${GREEN}[+] Removed Generated Commands\n"
 
 # files that are copied or downloaded every time pwnbox is run
 bloat_files=(

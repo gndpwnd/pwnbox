@@ -8,7 +8,8 @@ PATTERNS=(
 )
 
 # Output file to store sensitive data
-OUTPUT_FILE="sensitive.md"
+PARENT_DIR="BOXLOCATION"
+OUTPUT_FILE="${PARENT_DIR}/sensitive.md"
 
 # Function to remove sensitive content from a file
 remove_sensitive_content() {
