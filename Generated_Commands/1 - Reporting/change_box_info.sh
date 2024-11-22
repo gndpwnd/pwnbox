@@ -4,7 +4,7 @@
 box_host=""
 box_ip=""
 inf=""
-PARENT_DIR="BOXPARENT_DIRATION"
+PARENT_DIR="BOXLOCATION"
 
 # Usage instructions
 usage() {
