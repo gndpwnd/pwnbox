@@ -4,11 +4,11 @@
 
 ### Nmap
 
-# Enumeration
-
 ### DNS
 
-### WEB Part 1
+# Enumeration
+
+### WEB
 
 ### OSINT
 
@@ -28,9 +28,9 @@
 
 ### POP3
 
-### Remote Desktop
+### Network Analysis
 
-### WEB Part 2
+### Remote Desktop
 
 # Exploitation
 
@@ -46,9 +46,13 @@ http://google.com
 
 # Privilege Escalation
 
-### User
+### user from service
 
-### Root
+### user from user
+
+### Root from service
+
+### Root from user
 
 # Active Directory
 

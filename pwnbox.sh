@@ -206,7 +206,7 @@ reporting() {
   done
 
   mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
-  echo -e "## USER\n\n\`\`\`\n\`\`\`\n\n\n## ROOT\n\n\`\`\`\n\`\`\`" >> ${loc}/${box_name}_proofs.md 
+  echo -e "## Enumerated\n\n\`\`\`\n\`\`\`\n\n\n## USER\n\n\`\`\`\n\`\`\`\n\n\n## ROOT\n\n\`\`\`\n\`\`\`" >> ${loc}/${box_name}_proofs.md 
   mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template.md ${loc}/${box_name}_report.md
 
 }
