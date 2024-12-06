@@ -1,5 +1,10 @@
 # Recon
 
+remove all scripts from parent directory
+```
+find . -type f -name "*.sh" -delete
+```
+
 ### Rustscan
 
 ### Nmap

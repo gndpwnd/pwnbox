@@ -43,6 +43,43 @@ pwnbox.sh -d DEVICE -n NAME -i IP -n HOSTNAME
 
 I use obsidian for notetaking. After I run pwnbox, I just open the folder that pwnbox creates from the *-n* argument as the vault folder for obsidian.
 
+## Requirements
+
+one-liner setup
+
+```
+sudo apt install -y texlive-latex-recommended texlive-fonts-extra texlive-latex-extra pandoc p7zip-full docker.io; sudo groupadd docker; sudo usermod -aG docker $USER; sudo systemctl start docker; sudo systemctl enable docker; newgrp docker
+```
+
+reporting requirements as seen in [reporting](#reporting) and [noraj's repo](https://github.com/noraj/OSCP-Exam-Report-Template-Markdown#requirements)
+
+- [Pandoc](https://pandoc.org/installing.html)
+- LaTeX (eg. [TeX Live](http://www.tug.org/texlive/)) in order to get `pdflatex` or `xelatex`
+- [Eisvogel Pandoc LaTeX PDF Template](https://github.com/Wandmalfarbe/pandoc-latex-template#installation)
+- [p7zip](http://p7zip.sourceforge.net/) (if you want to use the script, for generating the archive)
+
+```
+sudo apt install -y texlive-latex-recommended texlive-fonts-extra texlive-latex-extra pandoc p7zip-full
+```
+
+docker setup
+
+```
+sudo apt install docker.io
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo systemctl start docker
+sudo systemctl enable docker
+newgrp docker
+```
+
+docker one-liner setup
+
+```
+sudo apt install docker.io; sudo groupadd docker; sudo usermod -aG docker $USER; sudo systemctl start docker; sudo systemctl enable docker; newgrp docker
+```
+
+
 ## Setup FS
 
 ```
@@ -106,7 +143,7 @@ Removes files that bloat your system. Like hydra.restore and the files obsidian 
 
 **get_scripts.sh**
 
-Not necessary to run for every new target box. This just sets up a directory (outside of the one pwnbox creates) that you can quickly *cd* to, spin up a file sharing service, and download/upload some common tools to a target box without needing to do things like "googling linpeas.sh"
+This script is not copied to every target box. The script sets up a directory "quickserv" (outside of the one pwnbox creates) that you can quickly *cd* to, spin up a file sharing service, and download/upload some common tools to a target box without needing to do [things like this](https://www.google.com/search?q=linpeas.sh) 
 
 **report_gen.sh**
 

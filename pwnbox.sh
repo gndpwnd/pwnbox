@@ -100,8 +100,6 @@ troubleshooting () {
 }
 troubleshooting
 
-
-
 export loc=$(pwd)/${box_name}
 folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
 sub_recon=("nmap")
@@ -149,36 +147,73 @@ printf "\n${GREEN}[+]${NC} Notes Copied..."
 
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Searching For Wordlists..."
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Discovering Tool Locations...\n"
 i_progress=$((i_progress+1))
+toolLocations() {
+  # Function to check and update shell configuration files with a variable
+  update_shell_config() {
+      local var_name="$1"
+      local dir_path="$2"
 
-seclist_dir=$(find / -type d -name "SecLists" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
-if [ -z "$seclist_dir" ]; then
-  printf "${YELLOW}[-]${NC} SecLists directory not found... \n"
-  printf "${YELLOW}[-]${NC} Attempting to download SecLists to ~/Downloads/ ... \n"
-  git clone https://github.com/danielmiessler/SecLists.git ~/Downloads/
-  seclist_dir=$(find / -type d -name "SecLists" 2>/dev/null | tr "\n" "," | cut -f1 -d ",")
-fi
+      # Update .bashrc
+      if [ -f ${HOME}/.bashrc ]; then
+          if ! grep -q "^export $var_name=" ${HOME}/.bashrc; then
+              echo "export $var_name=\"$dir_path\"" >> ${HOME}/.bashrc
+              echo "Added $var_name to ${HOME}/.bashrc"
+          fi
+      fi
 
-directory_list1="/usr/share/wordlists/dirb/big.txt"
-directory_list2="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
-domain_list="${seclist_dir}/DNS/subdomains-top1000000.txt"
-user_list="${seclist_dir}/Usernames/xato-net-10-million-usernames.txt"
-pass_list="${seclist_dir}/Passwords/xato-net-10-million-passwords-1000000.txt"
-subdomain_list1="${seclist_dir}/Discovery/DNS/subdomains-top1million-5000.txt"
-subdomain_list2="${seclist_dir}/Discovery/DNS/subdomains-top1million-110000.txt"
+      # Update .zshrc
+      if [ -f ${HOME}/.zshrc ]; then
+          if ! grep -q "^export $var_name=" ${HOME}/.zshrc; then
+              echo "export $var_name=\"$dir_path\"" >> ${HOME}/.zshrc
+              echo "Added $var_name to ${HOME}/.zshrc"
+          fi
+      fi
+  }
 
-imp_dirs=$(find / -type d -name 'impacket' -print 2>/dev/null | grep 'impacket')
-if [ -z "$imp_dirs" ]; then
-  printf "${YELLOW}[-]${NC} Impacket directory not found... \n"
-  printf "${YELLOW}[-]${NC} Attempting to download Impacket... \n"
-  git clone https://github.com/SecureAuthCorp/impacket.git
-  imp_dirs=$(find / -type d -name 'impacket' -print 2>/dev/null | grep 'impacket')
-fi
-imp_dir=$(echo $imp_dirs | tr '\n' ' '| cut -f1 -d ' ')
-imp_dir="${imp_dir}/examples"
-printf "\n${GREEN}[+]${NC} Search For Wordlists Complete..."
+  # Check or set seclists_dir
+  seclists_dir=${seclists_dir:-$(grep -oP '(?<=^export\sseclists_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  if [[ -z "$seclists_dir" ]]; then
+      echo "Searching for SecLists directory..."
+      seclists_dir=$(find / -type d -name "SecLists" 2>/dev/null | head -n 1)
+      if [[ -z "$seclists_dir" ]]; then
+          echo "SecLists directory not found. Cloning SecLists..."
+          git clone https://github.com/danielmiessler/SecLists.git ${HOME}/Downloads/SecLists
+          seclists_dir=${HOME}/Downloads/SecLists
+      fi
+      update_shell_config "seclists_dir" "$seclists_dir"
+  fi
 
+  # Check or set impacket_dir
+  impacket_dir=${impacket_dir:-$(grep -oP '(?<=^export\simpacket_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  if [[ -z "$impacket_dir" ]]; then
+      echo "Searching for Impacket directory..."
+      impacket_dir=$(find / -type d -name "impacket" 2>/dev/null | head -n 1)
+      if [[ -z "$impacket_dir" ]]; then
+          echo "Impacket directory not found. Cloning Impacket..."
+          git clone https://github.com/SecureAuthCorp/impacket.git ${HOME}/Downloads/impacket
+          impacket_dir=${HOME}/Downloads/impacket/examples
+      fi
+      update_shell_config "impacket_dir" "$impacket_dir"
+  fi
+
+  # Verbose output for the directories
+  #echo "SecLists directory: $seclists_dir"
+  #echo "Impacket directory: $impacket_dir"
+
+  # Set the wordlist paths based on the SecLists directory
+  export directory_list1="/usr/share/wordlists/dirb/big.txt"
+  export directory_list2="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
+  export domain_list="${seclists_dir}/DNS/subdomains-top1000000.txt"
+  export user_list="${seclists_dir}/Usernames/xato-net-10-million-usernames.txt"
+  export pass_list="${seclists_dir}/Passwords/xato-net-10-million-passwords-1000000.txt"
+  export subdomain_list1="${seclists_dir}/Discovery/DNS/subdomains-top1million-5000.txt"
+  export subdomain_list2="${seclists_dir}/Discovery/DNS/subdomains-top1million-110000.txt"
+
+}
+toolLocations
+printf "${GREEN}[+]${NC} Tool Locations Complete..."
 
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting Up Reporting..."
@@ -245,7 +280,7 @@ formatNotes() {
       local file=$1
       for search in "${!replacements[@]}"; do
           # Escape replacement value to safely handle special characters
-          replacement=$(printf '%s' "${replacements[$search]}" | sed 's/[&/\]/\\&/g')
+          replacement=$(printf '%s' "${replacements[$search]}" | sed 's+[&+\]+\\&+g')
           # Use | as a delimiter to avoid conflicts with /
           sed -i "s|$search|$replacement|g" "$file"
       done
@@ -278,7 +313,7 @@ usefulFiles(){
     {
         user_rsa=$(cat ${loc}/${folder_names[3]}/user_persis.rsa.pub)
         root_rsa=$(cat ${loc}/${folder_names[3]}/root_persis.rsa.pub)
-        echo -e "### New Usable SSH Pub Keys\n\n> add to ~/.ssh/authorized_keys\n\n"
+        echo -e "### New Usable SSH Pub Keys\n\n> add to ${HOME}/.ssh/authorized_keys\n\n"
         echo -e "User\n\`\`\`\necho -e \"${user_rsa}\" >> /home/user/.ssh/authorized_keys"
         echo -e "\n\`\`\`\n\nRoot\n\`\`\`\necho \"${root_rsa}\" >> /root/.ssh/authorized_keys\n\`\`\`"
 
@@ -293,14 +328,16 @@ find "$loc" -type d -exec chmod 775 {} \;
 find "$loc" -type f -name "*.sh" -exec chmod 777 {} \;
 
 # add box to /etc/hosts
-printf "\n\n${YELLOW}[-]${NC} Make sure to run the following:\n${CYAN}sudo echo \"${box_ip}        ${box_host}\" >> /etc/hosts${NC}\n"
+printf "\n${YELLOW}[-]${NC} Make sure to run the following:\n${CYAN}sudo sed -i \"1s/^/${box_ip}        ${box_host}\\\\n/\" /etc/hosts${NC}"
+
+
 
 # check if pandoc template for report exists on system where it should be
 if [ ! -e /usr/share/pandoc/data/templates/eisvogel.tex ]; then
- printf "${YELLOW}[-]${NC} Run this as well:\n${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.tex /usr/share/pandoc/data/templates/eisvogel.tex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}\n"
+ printf "\n${YELLOW}[-]${NC} Copy Latex Report Template:\n${CYAN}sudo cp ${loc}/Generated_Commands/1\ -\ Reporting/eisvogel_2.5.0.tex /usr/share/pandoc/data/templates/eisvogel.tex; sudo chmod 777 /usr/share/pandoc/data/templates/${NC}\n"
 fi
 
 # make sure you can quickly access lots of useful scripts for uploading/running on a target machine
-printf "${YELLOW}[-]${NC} Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh${NC}\n"
+#printf "\n\n${YELLOW}[-]${NC} Make sure your malicious files are ready to serve:\n${CYAN}${loc}/get_scripts.sh${NC}\n"
 
 printf "\n\n${GREEN}DONE!!!\n"
