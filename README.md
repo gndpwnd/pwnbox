@@ -105,9 +105,13 @@ I am not a very organized person when it comes to taking notes. A blank report f
 
 Simply copies notes accrued from previous CTFs to the current one. These notes will be deleted with [helpful scripts](#helpful-scripts) so that they don't take up space on a system repetitively.
 
-## Wordlists, Imp
+## Wordlists, Imp, PayloadsAllThings, GTFObins, LOLBAS
 
 Searches your system for where you installed [SecLists](https://github.com/danielmiessler/SecLists.git) and [Impacket](https://github.com/SecureAuthCorp/impacket.git) for a reference point when formatting notes. This feature is admittedly very rough around the edges.
+
+The markdown syntax from PayloadsAllThings, GTFObins, LOLBAS is leveraged to allow search functionality from Obsidian to empower users to search for possible answers to their immidiate questions. Rather than searching the web, users can have a local copy of infomation used in regular ctf scenarios.
+
+> When first running pwnbox, the script might automatically download these github repositories and will record their locations in the user's .bashrc and/or .zshrc. To run pwnbox again effectively, a new terminal will need to be opened or the config files sourced so the script does not confuse the locations of the repositories on the system. 
 
 ## Reporting
 

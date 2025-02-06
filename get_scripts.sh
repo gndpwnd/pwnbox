@@ -76,6 +76,7 @@ winPrivURLS=(
     "https://raw.githubusercontent.com/frizb/Windows-Privilege-Escalation/refs/heads/master/windows_recon.bat"
     "https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/refs/heads/dev/Recon/PowerView.ps1"
     "https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/refs/heads/dev/Privesc/PowerUp.ps1"
+    "https://raw.githubusercontent.com/740i/pentest-notes/refs/heads/master/RedTeam_CheatSheet.ps1"
     "https://raw.githubusercontent.com/Tib3rius/Windows-PrivEsc-Setup/refs/heads/master/setup.bat"
     "https://raw.githubusercontent.com/corelan/mona/master/mona.py"
     "https://github.com/ParrotSec/mimikatz/raw/refs/heads/master/x64/mimikatz.exe"

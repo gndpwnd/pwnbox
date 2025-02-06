@@ -11,6 +11,10 @@ printf "${YELLOW}[-] Generated Commands...\n"
 rm -rf ${PARENT_DIR}/Generated_Commands/
 printf "${GREEN}[+] Removed Generated Commands\n"
 
+printf "${YELLOW}[-] Notes DB...\n"
+rm -rf ${PARENT_DIR}/9-notesdb/
+printf "${GREEN}[+] Removed Notes DB\n"
+
 # files that are copied or downloaded every time pwnbox is run
 bloat_files=(
     "eisvogel_2.5.0.tex"

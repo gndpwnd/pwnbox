@@ -33,7 +33,7 @@ usage() {
 
 	-d DEVICE  		network interface of target network
 	
-	-n NAME   		target box name (does not need to = HOSTNAME)
+	-o NAME   		target box name (does not need to = HOSTNAME)
 	
 	-i IP     		ip of the target box
 
@@ -90,7 +90,7 @@ troubleshooting () {
 	elif [ -z ${box_ip} ]; then
 		printf "${RED}[x] (-i) No IP Provided... \n"
 		exit 1
-  elif [ -z ${box_host} ]; then
+    elif [ -z ${box_host} ]; then
 		printf "${RED}[x] (-n) No Hostname provided!!! \nAt least give box name with a '.tld'. You can change all the scripts later with change_box_info.sh\n"
 		exit 1
 	fi
@@ -101,7 +101,7 @@ troubleshooting () {
 troubleshooting
 
 export loc=$(pwd)/${box_name}
-folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots")
+folder_names=("1-recon" "2-enum" "3-xp" "4-privesc" "5-misc-tools" "6-ad" "7-networking" "8-screenshots" "9-notesdb")
 sub_recon=("nmap")
 sub_enum=("web" "ftp" "ssh" "sql" "smtp" "snmp" "smb" "nfs" "dns" "pop3" "imap" "OSINT")
 sub_misc_tools=("autorecon" "nuclei" "photon_ip" "photon_host" "cewl")
@@ -136,17 +136,6 @@ setup_fs
 printf "\n${GREEN}[+]${NC} FS Setup Complete..."
 
 
-
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Notes..."
-i_progress=$((i_progress+1))
-copyNotes() {
-  cp -r ${PWNBOX_SCRIPT_DIR}/Generated_Commands/ ${loc}/
-}
-copyNotes
-printf "\n${GREEN}[+]${NC} Notes Copied..."
-
-
-
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Discovering Tool Locations...\n"
 i_progress=$((i_progress+1))
 toolLocations() {
@@ -154,7 +143,6 @@ toolLocations() {
   update_shell_config() {
       local var_name="$1"
       local dir_path="$2"
-
       # Update .bashrc
       if [ -f ${HOME}/.bashrc ]; then
           if ! grep -q "^export $var_name=" ${HOME}/.bashrc; then
@@ -172,35 +160,92 @@ toolLocations() {
       fi
   }
 
+  # make a directory to store repositories if not located on system
+  notesdb_dir="${HOME}/Downloads/PWNBOX_NOTESDB"
+  if [[ ! -d "$notesdb_dir" ]]; then
+        echo "Creating notes database directory: $notesdb_dir"
+        mkdir -p "$notesdb_dir"
+  fi
+
   # Check or set seclists_dir
-  seclists_dir=${seclists_dir:-$(grep -oP '(?<=^export\sseclists_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  declare -g seclists_dir=${seclists_dir:-$(grep -oP '(?<=^export\sseclists_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
   if [[ -z "$seclists_dir" ]]; then
       echo "Searching for SecLists directory..."
       seclists_dir=$(find / -type d -name "SecLists" 2>/dev/null | head -n 1)
       if [[ -z "$seclists_dir" ]]; then
           echo "SecLists directory not found. Cloning SecLists..."
-          git clone https://github.com/danielmiessler/SecLists.git ${HOME}/Downloads/SecLists
-          seclists_dir=${HOME}/Downloads/SecLists
+          git clone https://github.com/danielmiessler/SecLists.git ${notesdb_dir}/SecLists
+          seclists_dir=${notesdb_dir}/SecLists
       fi
       update_shell_config "seclists_dir" "$seclists_dir"
   fi
 
   # Check or set impacket_dir
-  impacket_dir=${impacket_dir:-$(grep -oP '(?<=^export\simpacket_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  declare -g impacket_dir=${impacket_dir:-$(grep -oP '(?<=^export\simpacket_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
   if [[ -z "$impacket_dir" ]]; then
       echo "Searching for Impacket directory..."
       impacket_dir=$(find / -type d -name "impacket" 2>/dev/null | head -n 1)
       if [[ -z "$impacket_dir" ]]; then
           echo "Impacket directory not found. Cloning Impacket..."
-          git clone https://github.com/SecureAuthCorp/impacket.git ${HOME}/Downloads/impacket
-          impacket_dir=${HOME}/Downloads/impacket/examples
+          git clone https://github.com/SecureAuthCorp/impacket.git ${notesdb_dir}/impacket
+          impacket_dir=${notesdb_dir}/impacket/examples
       fi
       update_shell_config "impacket_dir" "$impacket_dir"
+  fi
+
+  # Check or set swisskeyrepo payloads_dir
+  declare -g payloads_dir=${payloads_dir:-$(grep -oP '(?<=^export\spayloads_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  if [[ -z "$payloads_dir" ]]; then
+      echo "Searching for PayloadsAllTheThings directory..."
+      payloads_dir=$(find / -type d -name "PayloadsAllTheThings" 2>/dev/null | head -n 1)
+      if [[ -z "$payloads_dir" ]]; then
+          echo "PayloadsAllTheThings directory not found. Cloning PayloadsAllTheThings..."
+          git clone https://github.com/swisskyrepo/PayloadsAllTheThings.git ${notesdb_dir}/PayloadsAllTheThings
+          payloads_dir=${notesdb_dir}/PayloadsAllTheThings
+      fi
+      update_shell_config "payloads_dir" "$payloads_dir"
+  fi
+
+  declare -g gtfobins_dir=${gtfobins_dir:-$(grep -oP '(?<=^export\sgtfobins_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  if [[ -z "$gtfobins_dir" ]]; then
+      echo "Searching for GTFOBins directory..."
+      gtfobins_dir=$(find / -type d -name "GTFOBins.github.io" 2>/dev/null | head -n 1)
+      if [[ -z "$gtfobins_dir" ]]; then
+          echo "GTFOBins directory not found. Cloning GTFOBins repository..."
+          git clone https://github.com/GTFOBins/GTFOBins.github.io.git ${notesdb_dir}/GTFOBins.github.io
+          gtfobins_dir=${notesdb_dir}/GTFOBins.github.io
+      fi
+      update_shell_config "gtfobins_dir" "$gtfobins_dir"
+  fi
+
+  declare -g lolbas_dir=${lolbas_dir:-$(grep -oP '(?<=^export\slolbas_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  if [[ -z "$lolbas_dir" ]]; then
+    echo "Searching for LOLBAS directory..."
+    lolbas_dir=$(find / -type d -name "LOLBAS" 2>/dev/null | head -n 1)
+    if [[ -z "$lolbas_dir" ]]; then
+        echo "LOLBAS directory not found. Cloning LOLBAS repository..."
+        git clone https://github.com/LOLBAS-Project/LOLBAS.git ${notesdb_dir}/LOLBAS
+        lolbas_dir=${notesdb_dir}/LOLBAS
+    fi
+    update_shell_config "lolbas_dir" "$lolbas_dir"
+  fi
+
+  declare -g taoi_dir=${taoi_dir:-$(grep -oP '(?<=^export\staoi_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
+  if [[ -z "$taoi_dir" ]]; then
+    echo "Searching for 740i directory..."
+    taoi_dir=$(find / -type d -name "740i" 2>/dev/null | head -n 1)
+    if [[ -z "$taoi_dir" ]]; then
+        echo "740i Notes directory not found. Cloning 740i Notes repository..."
+        git clone https://github.com/740i/pentest-notes.git ${notesdb_dir}/740i
+        taoi_dir=${notesdb_dir}/740i
+    fi
+    update_shell_config "taoi_dir" "$taoi_dir"
   fi
 
   # Verbose output for the directories
   #echo "SecLists directory: $seclists_dir"
   #echo "Impacket directory: $impacket_dir"
+  #echo "PayloadsAllThings directory: $payloads_dir"
 
   # Set the wordlist paths based on the SecLists directory
   export directory_list1="/usr/share/wordlists/dirb/big.txt"
@@ -215,6 +260,18 @@ toolLocations() {
 toolLocations
 printf "${GREEN}[+]${NC} Tool Locations Complete..."
 
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Commands and Notes..."
+i_progress=$((i_progress+1))
+copyNotes() {
+  cp -r ${PWNBOX_SCRIPT_DIR}/Generated_Commands/ ${loc}/
+
+  cp -r ${payloads_dir} ${loc}/${folder_names[8]}
+  cp -r ${gtfobins_dir} ${loc}/${folder_names[8]}
+  cp -r ${lolbas_dir} ${loc}/${folder_names[8]}
+  cp -r ${taoi_dir} ${loc}/${folder_names[8]}
+}
+copyNotes
+printf "\n${GREEN}[+]${NC} Notes Copied..."
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting Up Reporting..."
 i_progress=$((i_progress+1))
@@ -303,19 +360,16 @@ printf "\n${GREEN}[+]${NC} Notes Formatted..."
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Generating Useful Files...\n"
 usefulFiles(){
 
-    # Generate SSH keys
-    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/user_persis.rsa -N "" > /dev/null 2>&1
-    chmod 600 ${loc}/${folder_names[3]}/user_persis.rsa
-    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/root_persis.rsa -N "" > /dev/null 2>&1
-    chmod 600 ${loc}/${folder_names[3]}/root_persis.rsa
+    # Generate an SSH key for ssh persistence
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ${loc}/${folder_names[3]}/persis_rsa -N "" > /dev/null 2>&1
+    chmod 600 ${loc}/${folder_names[3]}/persis_rsa
 
-    # Add public SSH keys to the mini report
+    # Add public SSH key to the mini report
     {
-        user_rsa=$(cat ${loc}/${folder_names[3]}/user_persis.rsa.pub)
-        root_rsa=$(cat ${loc}/${folder_names[3]}/root_persis.rsa.pub)
-        echo -e "### New Usable SSH Pub Keys\n\n> add to ${HOME}/.ssh/authorized_keys\n\n"
-        echo -e "User\n\`\`\`\necho -e \"${user_rsa}\" >> /home/user/.ssh/authorized_keys"
-        echo -e "\n\`\`\`\n\nRoot\n\`\`\`\necho \"${root_rsa}\" >> /root/.ssh/authorized_keys\n\`\`\`"
+        persis_rsa=$(cat ${loc}/${folder_names[3]}/persis_rsa.pub)
+        echo -e "### New Usable SSH Pub Key\n\n> add to ${HOME}/.ssh/authorized_keys\n\n"
+        echo -e "User\n\`\`\`\necho -e \"${persis_rsa}\" >> /home/user/.ssh/authorized_keys"
+        echo -e "\n\`\`\`\n\nRoot\n\`\`\`\necho -e \"${persis_rsa}\" >> /root/.ssh/authorized_keys\n\`\`\`"
 
     } >> ${loc}/${folder_names[3]}/${folder_names[3]}_mini_report.md
 }
