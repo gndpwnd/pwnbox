@@ -136,7 +136,7 @@ setup_fs
 printf "\n${GREEN}[+]${NC} FS Setup Complete..."
 
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Discovering Tool Locations...\n"
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Discovering Notable Tool Locations...\n"
 i_progress=$((i_progress+1))
 toolLocations() {
   # Function to check and update shell configuration files with a variable
@@ -260,56 +260,10 @@ toolLocations() {
 toolLocations
 printf "${GREEN}[+]${NC} Tool Locations Complete..."
 
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Commands and Notes..."
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying and Formatting Commands..."
 i_progress=$((i_progress+1))
-copyNotes() {
+copyCommands() {
   cp -r ${PWNBOX_SCRIPT_DIR}/Generated_Commands/ ${loc}/
-
-  cp -r ${payloads_dir} ${loc}/${folder_names[8]}
-  cp -r ${gtfobins_dir} ${loc}/${folder_names[8]}
-  cp -r ${lolbas_dir} ${loc}/${folder_names[8]}
-  cp -r ${taoi_dir} ${loc}/${folder_names[8]}
-}
-copyNotes
-printf "\n${GREEN}[+]${NC} Notes Copied..."
-
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting Up Reporting..."
-i_progress=$((i_progress+1))
-reporting() {
-
-  # Replace variables in helpful scripts and markdown files with values of variables found in this script
-  for file in ${loc}/Generated_Commands/1\ -\ Reporting/*; do
-    if [[ -f "$file" ]]; then
-        #echo "Processing file: $file"
-
-        # Perform sed replacements
-        sed -i "s|BOXLOCATION|${loc}|g" "$file"
-        sed -i "s|BOXNAME|${box_name}|g" "$file"
-        sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "$file"
-        sed -i "s|REPORTAUTHOR|${USER}|g" "$file"
-        sed -i "s|REPORTDATE|${script_date}|g" "$file"
-
-        # Check if file is *.md
-        if [[ "$file" != *.md && "$file" != *.tex ]]; then
-            # if its a .sh file, just move it to the main dir
-            mv "$file" "$loc/"
-        fi
-    fi
-  done
-
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
-  echo -e "## Enumerated\n\n\`\`\`\n\`\`\`\n\n\n## USER\n\n\`\`\`\n\`\`\`\n\n\n## ROOT\n\n\`\`\`\n\`\`\`" >> ${loc}/${box_name}_proofs.md 
-  mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template.md ${loc}/${box_name}_report.md
-
-}
-reporting
-printf "\n${GREEN}[+]${NC} Reporting Setup"
-
-
-
-printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Formatting Notes..."
-i_progress=$((i_progress+1))
-formatNotes() {
 
   # Dictionary for search-and-replace strings
   declare -A replacements=(
@@ -352,10 +306,52 @@ formatNotes() {
       replace_in_file "$file"
   done
 }
-formatNotes
-printf "\n${GREEN}[+]${NC} Notes Formatted..."
+copyCommands
+printf "\n${GREEN}[+]${NC} Commands Copied and Formatted..."
+
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Setting Up Reporting..."
+i_progress=$((i_progress+1))
+reporting() {
+
+  # Replace variables in helpful scripts and markdown files with values of variables found in this script
+  for file in ${loc}/Generated_Commands/1\ -\ Reporting/*; do
+    if [[ -f "$file" ]]; then
+        #echo "Processing file: $file"
+
+        # Perform sed replacements
+        sed -i "s|BOXLOCATION|${loc}|g" "$file"
+        sed -i "s|BOXNAME|${box_name}|g" "$file"
+        sed -i "s|SCREENSHOTSDIR|${folder_names[7]}|g" "$file"
+        sed -i "s|REPORTAUTHOR|${USER}|g" "$file"
+        sed -i "s|REPORTDATE|${script_date}|g" "$file"
+
+        # Check if file is *.md
+        if [[ "$file" != *.md && "$file" != *.tex ]]; then
+            # if its a .sh file, just move it to the main dir
+            mv "$file" "$loc/"
+        fi
+    fi
+  done
+
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/box_dump_report.md ${loc}/${box_name}_dump_report.md
+  echo -e "## Enumerated\n\n\`\`\`\n\`\`\`\n\n\n## USER\n\n\`\`\`\n\`\`\`\n\n\n## ROOT\n\n\`\`\`\n\`\`\`" >> ${loc}/${box_name}_proofs.md 
+  mv ${loc}/Generated_Commands/1\ -\ Reporting/report_template.md ${loc}/${box_name}_report.md
+
+}
+reporting
+printf "\n${GREEN}[+]${NC} Reporting Setup"
 
 
+printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Copying Noteable Repositories..."
+i_progress=$((i_progress+1))
+copyNotes() {
+  cp -r ${payloads_dir} ${loc}/${folder_names[8]}
+  cp -r ${gtfobins_dir} ${loc}/${folder_names[8]}
+  cp -r ${lolbas_dir} ${loc}/${folder_names[8]}
+  cp -r ${taoi_dir} ${loc}/${folder_names[8]}
+}
+copyNotes
+printf "\n${GREEN}[+]${NC} Notes Copied..."
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Generating Useful Files...\n"
 usefulFiles(){

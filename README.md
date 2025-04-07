@@ -65,7 +65,7 @@ sudo apt install -y texlive-latex-recommended texlive-fonts-extra texlive-latex-
 docker setup
 
 ```
-sudo apt install docker.io
+sudo apt -y install docker.io
 sudo groupadd docker
 sudo usermod -aG docker $USER
 sudo systemctl start docker
@@ -76,7 +76,7 @@ newgrp docker
 docker one-liner setup
 
 ```
-sudo apt install docker.io; sudo groupadd docker; sudo usermod -aG docker $USER; sudo systemctl start docker; sudo systemctl enable docker; newgrp docker
+sudo apt install -y docker.io docker-compose; sudo groupadd docker; sudo usermod -aG docker $USER; sudo systemctl start docker; sudo systemctl enable docker; newgrp docker
 ```
 
 
