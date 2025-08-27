@@ -48,7 +48,7 @@ I use obsidian for notetaking. After I run pwnbox, I just open the folder that p
 one-liner setup
 
 ```
-sudo apt install -y texlive-latex-recommended texlive-fonts-extra texlive-latex-extra pandoc p7zip-full docker.io; sudo groupadd docker; sudo usermod -aG docker $USER; sudo systemctl start docker; sudo systemctl enable docker; newgrp docker
+sudo apt install -y apt-transport-https ca-certificates curl software-properties-common; sudo apt install -y texlive-latex-recommended texlive-fonts-extra texlive-latex-extra pandoc p7zip-full docker.io; sudo groupadd docker; sudo usermod -aG docker $USER; sudo systemctl start docker; sudo systemctl enable docker; newgrp docker
 ```
 
 reporting requirements as seen in [reporting](#reporting) and [noraj's repo](https://github.com/noraj/OSCP-Exam-Report-Template-Markdown#requirements)
@@ -65,6 +65,7 @@ sudo apt install -y texlive-latex-recommended texlive-fonts-extra texlive-latex-
 docker setup
 
 ```
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
 sudo apt -y install docker.io
 sudo groupadd docker
 sudo usermod -aG docker $USER
