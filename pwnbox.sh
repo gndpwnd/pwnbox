@@ -138,125 +138,162 @@ printf "\n${GREEN}[+]${NC} FS Setup Complete..."
 
 printf "\n${GREEN}[${i_progress}/${t_progress}]${NC} Discovering Notable Tool Locations...\n"
 i_progress=$((i_progress+1))
+
 toolLocations() {
-  # Function to check and update shell configuration files with a variable
-  update_shell_config() {
-      local var_name="$1"
-      local dir_path="$2"
-      # Update .bashrc
-      if [ -f ${HOME}/.bashrc ]; then
-          if ! grep -q "^export $var_name=" ${HOME}/.bashrc; then
-              echo "export $var_name=\"$dir_path\"" >> ${HOME}/.bashrc
-              echo "Added $var_name to ${HOME}/.bashrc"
-          fi
-      fi
+    # Function to safely get existing variable from shell configs
+    get_existing_var() {
+        local var_name="$1"
+        local var_value=""
+        
+        # Check .bashrc first
+        if [[ -f "${HOME}/.bashrc" ]]; then
+            var_value=$(grep "^export ${var_name}=" "${HOME}/.bashrc" 2>/dev/null | head -n1 | cut -d'"' -f2)
+        fi
+        
+        # If not found in .bashrc, check .zshrc
+        if [[ -z "$var_value" && -f "${HOME}/.zshrc" ]]; then
+            var_value=$(grep "^export ${var_name}=" "${HOME}/.zshrc" 2>/dev/null | head -n1 | cut -d'"' -f2)
+        fi
+        
+        # Validate that the path exists if we found something
+        if [[ -n "$var_value" && -d "$var_value" ]]; then
+            echo "$var_value"
+        fi
+    }
 
-      # Update .zshrc
-      if [ -f ${HOME}/.zshrc ]; then
-          if ! grep -q "^export $var_name=" ${HOME}/.zshrc; then
-              echo "export $var_name=\"$dir_path\"" >> ${HOME}/.zshrc
-              echo "Added $var_name to ${HOME}/.zshrc"
-          fi
-      fi
-  }
+    # Function to check and update shell configuration files with a variable
+    update_shell_config() {
+        local var_name="$1"
+        local dir_path="$2"
+        local updated=false
+        
+        # Update .bashrc if it exists
+        if [[ -f "${HOME}/.bashrc" ]]; then
+            if ! grep -q "^export ${var_name}=" "${HOME}/.bashrc" 2>/dev/null; then
+                echo "export ${var_name}=\"${dir_path}\"" >> "${HOME}/.bashrc"
+                echo "Added ${var_name} to ${HOME}/.bashrc"
+                updated=true
+            fi
+        else
+            # Create .bashrc if it doesn't exist
+            echo "export ${var_name}=\"${dir_path}\"" > "${HOME}/.bashrc"
+            echo "Created ${HOME}/.bashrc and added ${var_name}"
+            updated=true
+        fi
 
-  # make a directory to store repositories if not located on system
-  notesdb_dir="${HOME}/Downloads/PWNBOX_NOTESDB"
-  if [[ ! -d "$notesdb_dir" ]]; then
+        # Update .zshrc if it exists
+        if [[ -f "${HOME}/.zshrc" ]]; then
+            if ! grep -q "^export ${var_name}=" "${HOME}/.zshrc" 2>/dev/null; then
+                echo "export ${var_name}=\"${dir_path}\"" >> "${HOME}/.zshrc"
+                echo "Added ${var_name} to ${HOME}/.zshrc"
+                updated=true
+            fi
+        fi
+        
+        return 0
+    }
+
+    # Function to find or clone a repository
+    find_or_clone_repo() {
+        local repo_name="$1"
+        local repo_url="$2"
+        local search_name="$3"  # What to search for (may differ from repo name)
+        local var_name="$4"
+        local subdir="$5"       # Optional subdirectory (e.g., "examples" for impacket)
+        
+        # First check if we already have it in shell config
+        local existing_path=$(get_existing_var "$var_name")
+        if [[ -n "$existing_path" ]]; then
+            echo "Using existing ${repo_name} from config: $existing_path"
+            declare -g "${var_name}=$existing_path"
+            return 0
+        fi
+        
+        echo "Searching for ${repo_name} directory..."
+        local found_dir=$(find / -type d -name "$search_name" -not -path "*/.*" 2>/dev/null | head -n 1)
+        
+        if [[ -n "$found_dir" ]]; then
+            # If we need a subdirectory, append it
+            if [[ -n "$subdir" ]]; then
+                found_dir="${found_dir}/${subdir}"
+                # Verify the subdirectory exists
+                if [[ ! -d "$found_dir" ]]; then
+                    echo "Warning: Expected subdirectory ${subdir} not found in ${found_dir%/*}"
+                    found_dir="${found_dir%/*}"  # Fall back to parent directory
+                fi
+            fi
+            echo "Found ${repo_name} at: $found_dir"
+            declare -g "${var_name}=$found_dir"
+            update_shell_config "$var_name" "$found_dir"
+        else
+            echo "${repo_name} directory not found. Cloning ${repo_name}..."
+            local clone_target="${notesdb_dir}/$(basename "$repo_url" .git)"
+            
+            if git clone "$repo_url" "$clone_target" 2>/dev/null; then
+                if [[ -n "$subdir" ]]; then
+                    clone_target="${clone_target}/${subdir}"
+                fi
+                declare -g "${var_name}=$clone_target"
+                update_shell_config "$var_name" "$clone_target"
+                echo "Successfully cloned ${repo_name} to: $clone_target"
+            else
+                echo "Error: Failed to clone ${repo_name}"
+                declare -g "${var_name}="  # Set empty to avoid undefined variable errors
+                return 1
+            fi
+        fi
+    }
+
+    # Create notes database directory if it doesn't exist
+    notesdb_dir="${HOME}/Downloads/PWNBOX_NOTESDB"
+    if [[ ! -d "$notesdb_dir" ]]; then
         echo "Creating notes database directory: $notesdb_dir"
-        mkdir -p "$notesdb_dir"
-  fi
-
-  # Check or set seclists_dir
-  declare -g seclists_dir=${seclists_dir:-$(grep -oP '(?<=^export\sseclists_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
-  if [[ -z "$seclists_dir" ]]; then
-      echo "Searching for SecLists directory..."
-      seclists_dir=$(find / -type d -name "SecLists" 2>/dev/null | head -n 1)
-      if [[ -z "$seclists_dir" ]]; then
-          echo "SecLists directory not found. Cloning SecLists..."
-          git clone https://github.com/danielmiessler/SecLists.git ${notesdb_dir}/SecLists
-          seclists_dir=${notesdb_dir}/SecLists
-      fi
-      update_shell_config "seclists_dir" "$seclists_dir"
-  fi
-
-  # Check or set impacket_dir
-  declare -g impacket_dir=${impacket_dir:-$(grep -oP '(?<=^export\simpacket_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
-  if [[ -z "$impacket_dir" ]]; then
-      echo "Searching for Impacket directory..."
-      impacket_dir=$(find / -type d -name "impacket" 2>/dev/null | head -n 1)
-      if [[ -z "$impacket_dir" ]]; then
-          echo "Impacket directory not found. Cloning Impacket..."
-          git clone https://github.com/SecureAuthCorp/impacket.git ${notesdb_dir}/impacket
-          impacket_dir=${notesdb_dir}/impacket/examples
-      fi
-      update_shell_config "impacket_dir" "$impacket_dir"
-  fi
-
-  # Check or set swisskeyrepo payloads_dir
-  declare -g payloads_dir=${payloads_dir:-$(grep -oP '(?<=^export\spayloads_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
-  if [[ -z "$payloads_dir" ]]; then
-      echo "Searching for PayloadsAllTheThings directory..."
-      payloads_dir=$(find / -type d -name "PayloadsAllTheThings" 2>/dev/null | head -n 1)
-      if [[ -z "$payloads_dir" ]]; then
-          echo "PayloadsAllTheThings directory not found. Cloning PayloadsAllTheThings..."
-          git clone https://github.com/swisskyrepo/PayloadsAllTheThings.git ${notesdb_dir}/PayloadsAllTheThings
-          payloads_dir=${notesdb_dir}/PayloadsAllTheThings
-      fi
-      update_shell_config "payloads_dir" "$payloads_dir"
-  fi
-
-  declare -g gtfobins_dir=${gtfobins_dir:-$(grep -oP '(?<=^export\sgtfobins_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
-  if [[ -z "$gtfobins_dir" ]]; then
-      echo "Searching for GTFOBins directory..."
-      gtfobins_dir=$(find / -type d -name "GTFOBins.github.io" 2>/dev/null | head -n 1)
-      if [[ -z "$gtfobins_dir" ]]; then
-          echo "GTFOBins directory not found. Cloning GTFOBins repository..."
-          git clone https://github.com/GTFOBins/GTFOBins.github.io.git ${notesdb_dir}/GTFOBins.github.io
-          gtfobins_dir=${notesdb_dir}/GTFOBins.github.io
-      fi
-      update_shell_config "gtfobins_dir" "$gtfobins_dir"
-  fi
-
-  declare -g lolbas_dir=${lolbas_dir:-$(grep -oP '(?<=^export\slolbas_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
-  if [[ -z "$lolbas_dir" ]]; then
-    echo "Searching for LOLBAS directory..."
-    lolbas_dir=$(find / -type d -name "LOLBAS" 2>/dev/null | head -n 1)
-    if [[ -z "$lolbas_dir" ]]; then
-        echo "LOLBAS directory not found. Cloning LOLBAS repository..."
-        git clone https://github.com/LOLBAS-Project/LOLBAS.git ${notesdb_dir}/LOLBAS
-        lolbas_dir=${notesdb_dir}/LOLBAS
+        mkdir -p "$notesdb_dir" || {
+            echo "Error: Failed to create $notesdb_dir"
+            exit 1
+        }
     fi
-    update_shell_config "lolbas_dir" "$lolbas_dir"
-  fi
 
-  declare -g taoi_dir=${taoi_dir:-$(grep -oP '(?<=^export\staoi_dir=").*(?=")' ${HOME}/.bashrc ${HOME}/.zshrc | head -n 1)}
-  if [[ -z "$taoi_dir" ]]; then
-    echo "Searching for 740i directory..."
-    taoi_dir=$(find / -type d -name "740i" 2>/dev/null | head -n 1)
-    if [[ -z "$taoi_dir" ]]; then
-        echo "740i Notes directory not found. Cloning 740i Notes repository..."
-        git clone https://github.com/740i/pentest-notes.git ${notesdb_dir}/740i
-        taoi_dir=${notesdb_dir}/740i
+    # Find or clone each repository
+    find_or_clone_repo "SecLists" "https://github.com/danielmiessler/SecLists.git" "SecLists" "seclists_dir"
+    find_or_clone_repo "Impacket" "https://github.com/SecureAuthCorp/impacket.git" "impacket" "impacket_dir" "examples"
+    find_or_clone_repo "PayloadsAllTheThings" "https://github.com/swisskyrepo/PayloadsAllTheThings.git" "PayloadsAllTheThings" "payloads_dir"
+    find_or_clone_repo "GTFOBins" "https://github.com/GTFOBins/GTFOBins.github.io.git" "GTFOBins.github.io" "gtfobins_dir"
+    find_or_clone_repo "LOLBAS" "https://github.com/LOLBAS-Project/LOLBAS.git" "LOLBAS" "lolbas_dir"
+    find_or_clone_repo "740i Notes" "https://github.com/740i/pentest-notes.git" "740i" "taoi_dir"
+
+    # Verify critical directories exist before setting wordlist paths
+    if [[ -n "$seclists_dir" && -d "$seclists_dir" ]]; then
+        export directory_list1="/usr/share/wordlists/dirb/big.txt"
+        export directory_list2="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
+        export domain_list="${seclists_dir}/DNS/subdomains-top1000000.txt"
+        export user_list="${seclists_dir}/Usernames/xato-net-10-million-usernames.txt"
+        export pass_list="${seclists_dir}/Passwords/xato-net-10-million-passwords-1000000.txt"
+        export subdomain_list1="${seclists_dir}/Discovery/DNS/subdomains-top1million-5000.txt"
+        export subdomain_list2="${seclists_dir}/Discovery/DNS/subdomains-top1million-110000.txt"
+        
+        # Verify wordlist files exist and warn if missing
+        for wordlist in "$directory_list1" "$directory_list2" "$domain_list" "$user_list" "$pass_list" "$subdomain_list1" "$subdomain_list2"; do
+            if [[ ! -f "$wordlist" ]]; then
+                echo "Warning: Wordlist not found: $wordlist"
+            fi
+        done
+    else
+        echo "Warning: SecLists not available, wordlist paths not set"
     fi
-    update_shell_config "taoi_dir" "$taoi_dir"
-  fi
 
-  # Verbose output for the directories
-  #echo "SecLists directory: $seclists_dir"
-  #echo "Impacket directory: $impacket_dir"
-  #echo "PayloadsAllThings directory: $payloads_dir"
-
-  # Set the wordlist paths based on the SecLists directory
-  export directory_list1="/usr/share/wordlists/dirb/big.txt"
-  export directory_list2="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt"
-  export domain_list="${seclists_dir}/DNS/subdomains-top1000000.txt"
-  export user_list="${seclists_dir}/Usernames/xato-net-10-million-usernames.txt"
-  export pass_list="${seclists_dir}/Passwords/xato-net-10-million-passwords-1000000.txt"
-  export subdomain_list1="${seclists_dir}/Discovery/DNS/subdomains-top1million-5000.txt"
-  export subdomain_list2="${seclists_dir}/Discovery/DNS/subdomains-top1million-110000.txt"
-
+    # Print summary of what was found/configured
+    echo
+    echo "=== Tool Location Summary ==="
+    [[ -n "$seclists_dir" ]] && echo "SecLists: $seclists_dir" || echo "SecLists: NOT AVAILABLE"
+    [[ -n "$impacket_dir" ]] && echo "Impacket: $impacket_dir" || echo "Impacket: NOT AVAILABLE"
+    [[ -n "$payloads_dir" ]] && echo "PayloadsAllTheThings: $payloads_dir" || echo "PayloadsAllTheThings: NOT AVAILABLE"
+    [[ -n "$gtfobins_dir" ]] && echo "GTFOBins: $gtfobins_dir" || echo "GTFOBins: NOT AVAILABLE"
+    [[ -n "$lolbas_dir" ]] && echo "LOLBAS: $lolbas_dir" || echo "LOLBAS: NOT AVAILABLE"
+    [[ -n "$taoi_dir" ]] && echo "740i Notes: $taoi_dir" || echo "740i Notes: NOT AVAILABLE"
+    echo "============================="
 }
+
 toolLocations
 printf "${GREEN}[+]${NC} Tool Locations Complete..."
 
