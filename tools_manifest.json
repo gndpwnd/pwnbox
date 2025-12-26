@@ -1,0 +1,205 @@
+{
+  "repository": "pwnbox",
+  "domain": "network-penetration-testing",
+  "description": "OSCP-style network pentesting tools for reconnaissance, enumeration, exploitation, and post-exploitation",
+  "last_updated": "2025-12-26",
+  "tools": {
+    "reconnaissance": {
+      "priority": "high",
+      "tools": [
+        "nmap",
+        "masscan",
+        "rustscan"
+      ]
+    },
+    "enumeration": {
+      "priority": "high",
+      "tools": [
+        "gobuster",
+        "feroxbuster",
+        "enum4linux",
+        "smbclient",
+        "smbmap"
+      ]
+    },
+    "active-directory": {
+      "priority": "high",
+      "tools": [
+        "bloodhound",
+        "kerbrute",
+        "responder",
+        "crackmapexec",
+        "netexec"
+      ]
+    },
+    "exploitation": {
+      "priority": "high",
+      "tools": [
+        "impacket",
+        "evil-winrm",
+        "metasploit-framework",
+        "msfvenom"
+      ]
+    },
+    "password-cracking": {
+      "priority": "high",
+      "tools": [
+        "hashcat",
+        "john",
+        "hydra"
+      ]
+    },
+    "pivoting": {
+      "priority": "high",
+      "tools": [
+        "chisel",
+        "ligolo-ng",
+        "proxychains",
+        "ssh",
+        "socat"
+      ]
+    },
+    "privilege-escalation": {
+      "priority": "high",
+      "tools": [
+        "linpeas",
+        "winpeas",
+        "pspy",
+        "mimikatz"
+      ]
+    },
+    "networking": {
+      "priority": "high",
+      "tools": [
+        "nc",
+        "rlwrap"
+      ]
+    }
+  },
+  "documentation_status": {
+    "bloodhound": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:01.089541"
+    },
+    "chisel": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:05.363194"
+    },
+    "crackmapexec": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:09.694133"
+    },
+    "enum4linux": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:14.044798"
+    },
+    "evil-winrm": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:18.276420"
+    },
+    "feroxbuster": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:22.296668"
+    },
+    "gobuster": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:26.570569"
+    },
+    "hashcat": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:30.799250"
+    },
+    "hydra": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:33.240048"
+    },
+    "impacket": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:37.482051"
+    },
+    "john": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:41.867864"
+    },
+    "kerbrute": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:32:45.390865"
+    },
+    "ligolo-ng": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:32:49.044657"
+    },
+    "linpeas": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:53.570725"
+    },
+    "masscan": {
+      "status": "documented",
+      "updated": "2025-12-26T18:32:56.014449"
+    },
+    "metasploit-framework": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:00.657672"
+    },
+    "mimikatz": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:33:04.672369"
+    },
+    "msfvenom": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:33:08.189952"
+    },
+    "nc": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:33:11.889107"
+    },
+    "netexec": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:15.943184"
+    },
+    "nmap": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:18.184889"
+    },
+    "proxychains": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:33:21.694998"
+    },
+    "pspy": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:33:25.200788"
+    },
+    "responder": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:29.692369"
+    },
+    "rlwrap": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:33:33.575263"
+    },
+    "rustscan": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:37.898365"
+    },
+    "smbclient": {
+      "status": "not_found",
+      "updated": "2025-12-26T18:33:41.595593"
+    },
+    "smbmap": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:46.032870"
+    },
+    "socat": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:50.241525"
+    },
+    "ssh": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:53.159031"
+    },
+    "winpeas": {
+      "status": "documented",
+      "updated": "2025-12-26T18:33:57.271486"
+    }
+  }
+}
