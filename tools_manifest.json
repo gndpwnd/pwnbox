@@ -122,12 +122,12 @@
       "updated": "2025-12-26T18:32:41.867864"
     },
     "kerbrute": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:32:45.390865"
+      "status": "documented",
+      "updated": "2025-12-26T18:42:37.816832"
     },
     "ligolo-ng": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:32:49.044657"
+      "status": "documented",
+      "updated": "2025-12-26T18:42:42.045421"
     },
     "linpeas": {
       "status": "documented",
@@ -142,16 +142,16 @@
       "updated": "2025-12-26T18:33:00.657672"
     },
     "mimikatz": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:33:04.672369"
+      "status": "documented",
+      "updated": "2025-12-26T18:42:46.306701"
     },
     "msfvenom": {
       "status": "not_found",
-      "updated": "2025-12-26T18:33:08.189952"
+      "updated": "2025-12-26T18:42:49.679827"
     },
     "nc": {
       "status": "not_found",
-      "updated": "2025-12-26T18:33:11.889107"
+      "updated": "2025-12-26T18:42:53.436899"
     },
     "netexec": {
       "status": "documented",
@@ -162,12 +162,12 @@
       "updated": "2025-12-26T18:33:18.184889"
     },
     "proxychains": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:33:21.694998"
+      "status": "documented",
+      "updated": "2025-12-26T18:42:57.634653"
     },
     "pspy": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:33:25.200788"
+      "status": "documented",
+      "updated": "2025-12-26T18:43:01.777085"
     },
     "responder": {
       "status": "documented",
@@ -175,7 +175,7 @@
     },
     "rlwrap": {
       "status": "not_found",
-      "updated": "2025-12-26T18:33:33.575263"
+      "updated": "2025-12-26T18:43:05.466443"
     },
     "rustscan": {
       "status": "documented",
@@ -183,7 +183,7 @@
     },
     "smbclient": {
       "status": "not_found",
-      "updated": "2025-12-26T18:33:41.595593"
+      "updated": "2025-12-26T18:43:09.260167"
     },
     "smbmap": {
       "status": "documented",
