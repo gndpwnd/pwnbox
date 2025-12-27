@@ -1,72 +1,241 @@
 ---
-title: "hashcat"
-category: "tool"
-tags: ["tool-documentation"]
+title: hashcat
+category: password-cracking
+tags:
+  - hash-cracking
+  - gpu-acceleration
+  - password-recovery
+  - pentesting
 sources:
-  - type: readme
-    url: "https://github.com/hashcat/hashcat"
-last_updated: "2025-12-26"
+  - https://hashcat.net/hashcat/
+  - https://github.com/hashcat/hashcat
+last_updated: 2025-12-27
 ---
 
 # hashcat
 
-## README
+> World's fastest password recovery tool with GPU acceleration
 
-## *hashcat* ##
+## Table of Contents
 
-**hashcat** is the world's fastest and most advanced password recovery utility, supporting five unique modes of attack for over 300 highly-optimized hashing algorithms. hashcat currently supports CPUs, GPUs, and other hardware accelerators on Linux, Windows, and macOS, and has facilities to help enable distributed password cracking.
+- [Overview](#overview)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Attack Modes](#attack-modes)
+- [Common Hash Types](#common-hash-types)
+- [AD Pentesting Quick Reference](#ad-pentesting-quick-reference)
+- [Rule-Based Attacks](#rule-based-attacks)
+- [Documentation](#documentation)
 
-### License ###
+## Overview
 
-**hashcat** is licensed under the MIT license. Refer to [docs/license.txt](docs/license.txt) for more information.
+Hashcat is the world's fastest and most advanced password recovery utility. It supports:
 
-### Installation ###
+- **300+ hash algorithms** (MD5, SHA1, bcrypt, NTLM, WPA, etc.)
+- **GPU acceleration** (NVIDIA CUDA, AMD OpenCL)
+- **Multiple attack modes** (dictionary, brute-force, hybrid, rules)
+- **Distributed cracking** via Hashtopolis
+- **Cross-platform** (Linux, Windows, macOS)
 
-Download the [latest release](https://hashcat.net/hashcat/) and unpack it in the desired location. Please remember to use `7z x` when unpacking the archive from the command line to ensure full file paths remain intact.
+## Installation
 
-Your platform may also provide [packages](docs/packages.md).
+```bash
+# Kali Linux / Debian
+sudo apt install hashcat
 
-### Usage/Help ###
+# From source
+git clone https://github.com/hashcat/hashcat.git
+cd hashcat && make
 
-Please refer to the [Hashcat Wiki](https://hashcat.net/wiki/) and the output of `--help` for usage information and general help. A list of frequently asked questions may also be found [here](https://hashcat.net/wiki/doku.php?id=frequently_asked_questions). The [Hashcat Forum](https://hashcat.net/forum/) also contains a plethora of information. If you still think you need help by a real human come to [Discord](https://discord.gg/HFS523HGBT).
-
-### Building ###
-
-Refer to [BUILD.md](BUILD.md) for instructions on how to build **hashcat** from source.
-
-Tests:
-
-Travis | Coverity | GitHub Actions
------- | -------- | --------------
-[![Hashcat Travis Build status](https://travis-ci.org/hashcat/hashcat.svg?branch=master)](https://travis-ci.org/hashcat/hashcat) | [![Coverity Scan Build Status](https://scan.coverity.com/projects/11753/badge.svg)](https://scan.coverity.com/projects/hashcat) | [![Hashcat GitHub Actions Build status](https://github.com/hashcat/hashcat/actions/workflows/build.yml/badge.svg)](https://github.com/hashcat/hashcat/actions/workflows/build.yml)
-
-### Contributing ###
-
-Contributions are welcome and encouraged, provided your code is of sufficient quality. Before submitting a pull request, please ensure your code adheres to the following requirements:
-
-1. Licensed under MIT license, or dedicated to the public domain (BSD, GPL, etc. code is incompatible)
-2. Adheres to gnu99 standard
-3. Compiles cleanly with no warnings when compiled with `-W -Wall -std=gnu99`
-4. Uses [Allman-style](https://en.wikipedia.org/wiki/Indent_style#Allman_style) code blocks & indentation
-5. Uses 2-spaces as the indentation or a tab if it's required (for example: Makefiles)
-6. Uses lower-case function and variable names
-7. Avoids the use of `!` and uses positive conditionals wherever possible (e.g., `if (foo == 0)` instead of `if (!foo)`, and `if (foo)` instead of `if (foo != 0)`)
-8. Use code like array[index + 0] if you also need to do array[index + 1], to keep it aligned
-
-You can use GNU Indent to help assist you with the style requirements:
-
-```
-indent -st -bad -bap -sc -bl -bli0 -ncdw -nce -cli0 -cbi0 -pcs -cs -npsl -bs -nbc -bls -blf -lp -i2 -ts2 -nut -l1024 -nbbo -fca -lc1024 -fc1
+# Verify installation
+hashcat --version
 ```
 
-Your pull request should fully describe the functionality you are adding/removing or the problem you are solving. Regardless of whether your patch modifies one line or one thousand lines, you must describe what has prompted and/or motivated the change.
+## Quick Start
 
-Solve only one problem in each pull request. If you're fixing a bug and adding a new feature, you need to make two separate pull requests. If you're fixing three bugs, you need to make three separate pull requests. If you're adding four new features, you need to make four separate pull requests. So on, and so forth.
+### Dictionary Attack (Mode 0)
 
-If your patch fixes a bug, please be sure there is an [issue](https://github.com/hashcat/hashcat/issues) open for the bug before submitting a pull request. If your patch aims to improve performance or optimize an algorithm, be sure to quantify your optimizations and document the trade-offs, and back up your claims with benchmarks and metrics.
+```bash
+# Basic wordlist attack
+hashcat -m 0 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
 
-In order to maintain the quality and integrity of the **hashcat** source tree, all pull requests must be reviewed and signed off by at least two [board members](https://github.com/orgs/hashcat/people) before being merged. The [project lead](https://github.com/jsteube) has the ultimate authority in deciding whether to accept or reject a pull request. Do not be discouraged if your pull request is rejected!
+# With rules
+hashcat -m 0 -a 0 hashes.txt wordlist.txt -r /usr/share/hashcat/rules/best64.rule
+```
 
-### Happy Cracking!
+### Brute-Force / Mask Attack (Mode 3)
 
+```bash
+# 8-char lowercase
+hashcat -m 0 -a 3 hash.txt ?l?l?l?l?l?l?l?l
 
+# Custom charset: uppercase + digits, 6 chars
+hashcat -m 0 -a 3 hash.txt -1 ?u?d ?1?1?1?1?1?1
+```
+
+### Hybrid Attacks (Modes 6 & 7)
+
+```bash
+# Wordlist + mask (append 4 digits)
+hashcat -m 0 -a 6 hash.txt wordlist.txt ?d?d?d?d
+
+# Mask + wordlist (prepend 2 digits)
+hashcat -m 0 -a 7 hash.txt ?d?d wordlist.txt
+```
+
+### Show Cracked Passwords
+
+```bash
+hashcat -m 0 hashes.txt --show
+hashcat -m 0 hashes.txt --show --outfile-format=2  # passwords only
+```
+
+## Attack Modes
+
+| Mode | Name       | Description                          |
+|------|------------|--------------------------------------|
+| 0    | Straight   | Dictionary attack                    |
+| 1    | Combinator | Combine words from two wordlists     |
+| 3    | Brute-force| Mask-based character permutations    |
+| 6    | Hybrid     | Wordlist + mask                      |
+| 7    | Hybrid     | Mask + wordlist                      |
+| 9    | Association| Targeted attack with hints           |
+
+## Common Hash Types
+
+| Mode   | Hash Type                    | Example Use Case           |
+|--------|------------------------------|----------------------------|
+| 0      | MD5                          | Web apps, databases        |
+| 100    | SHA1                         | Legacy systems             |
+| 1000   | NTLM                         | Windows credentials        |
+| 1800   | sha512crypt                  | Linux /etc/shadow          |
+| 3200   | bcrypt                       | Modern web apps            |
+| 5600   | NetNTLMv2                    | AD relay attacks           |
+| 13100  | Kerberos TGS-REP (RC4)       | Kerberoasting              |
+| 18200  | Kerberos AS-REP (RC4)        | AS-REP roasting            |
+| 22000  | WPA-PBKDF2-PMKID+EAPOL       | WiFi cracking              |
+
+Run `hashcat --example-hashes` for full list with format examples.
+
+## AD Pentesting Quick Reference
+
+### NTLM Hashes (Mode 1000)
+
+```bash
+# Quick rockyou + rules
+hashcat -m 1000 ntlm.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+
+# Common corporate patterns
+hashcat -m 1000 -a 3 ntlm.txt ?u?l?l?l?l?l?l?d?d?d?d
+hashcat -m 1000 -a 6 ntlm.txt usernames.txt ?d?d?d?d
+
+# Deep dive with aggressive rules
+hashcat -m 1000 ntlm.txt rockyou.txt -r /usr/share/hashcat/rules/d3ad0ne.rule
+```
+
+### NetNTLMv2 (Mode 5600)
+
+```bash
+# From Responder/ntlmrelayx captures
+hashcat -m 5600 netntlmv2.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule -O
+
+# Common patterns (slower hash, be strategic)
+hashcat -m 5600 -a 3 netntlmv2.txt ?u?l?l?l?l?l2024!
+```
+
+### Kerberoasting TGS-REP (Mode 13100)
+
+```bash
+# From GetUserSPNs.py / Rubeus
+hashcat -m 13100 kerberos.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+
+# Service accounts often have weak passwords
+hashcat -m 13100 -a 6 kerberos.txt service-words.txt ?d?d?d?d
+```
+
+### AS-REP Roasting (Mode 18200)
+
+```bash
+# From GetNPUsers.py
+hashcat -m 18200 asrep.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+```
+
+### Domain Cached Credentials (Mode 2100)
+
+```bash
+# Very slow - use focused wordlists
+hashcat -m 2100 dcc2.txt top1000.txt -r /usr/share/hashcat/rules/best64.rule -w 3
+```
+
+## Rule-Based Attacks
+
+### Best Rule Files
+
+| Rule File | Size | Use Case |
+|-----------|------|----------|
+| `best64.rule` | 64 rules | Quick first pass |
+| `rockyou-30000.rule` | 30k rules | Comprehensive |
+| `d3ad0ne.rule` | ~35k rules | Aggressive mutations |
+| `OneRuleToRuleThemAll.rule` | Optimized | Best efficiency |
+
+### Rule Attack Examples
+
+```bash
+# Single rule file
+hashcat -m 1000 hashes.txt wordlist.txt -r /usr/share/hashcat/rules/best64.rule
+
+# Chain multiple rules (multiplies candidates)
+hashcat -m 1000 hashes.txt wordlist.txt -r rules/best64.rule -r rules/toggles1.rule
+
+# Generate random rules
+hashcat -m 1000 hashes.txt wordlist.txt -g 50000
+```
+
+### Common Rule Functions
+
+| Rule | Description | Example |
+|------|-------------|---------|
+| `c` | Capitalize first | password -> Password |
+| `$X` | Append char X | password$1 -> password1 |
+| `^X` | Prepend char X | password^1 -> 1password |
+| `sXY` | Replace X with Y | sae -> p@ssword |
+| `u` | Uppercase all | password -> PASSWORD |
+| `d` | Duplicate | pass -> passpass |
+
+## Mask Charsets
+
+| Charset | Description         |
+|---------|---------------------|
+| ?l      | a-z                 |
+| ?u      | A-Z                 |
+| ?d      | 0-9                 |
+| ?s      | Special characters  |
+| ?a      | ?l?u?d?s            |
+| ?b      | 0x00-0xff           |
+
+## Useful Options
+
+```bash
+-w 3                  # Workload profile (1=low, 3=high, 4=nightmare)
+-O                    # Optimized kernels (faster, limited password length)
+--force               # Ignore warnings (use with caution)
+--status              # Enable status screen
+--potfile-disable     # Don't save to potfile
+-o cracked.txt        # Output file for cracked hashes
+--username            # Ignore usernames in hash file
+```
+
+## Documentation
+
+| File | Description |
+|------|-------------|
+| [techniques.md](techniques.md) | Advanced cracking techniques, AD strategies, optimization |
+| [official_docs.md](official_docs.md) | Wiki content, attack guides, external resources |
+| [modes.md](modes.md) | Full hash mode list, options reference, status output |
+
+## External Resources
+
+- [Hashcat Wiki](https://hashcat.net/wiki/)
+- [Example Hashes](https://hashcat.net/wiki/doku.php?id=example_hashes)
+- [Rule-based Attack Guide](https://hashcat.net/wiki/doku.php?id=rule_based_attack)
+- [Hashcat Forum](https://hashcat.net/forum/)

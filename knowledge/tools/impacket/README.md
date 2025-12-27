@@ -1,155 +1,122 @@
 ---
-title: "impacket"
+title: "Impacket"
 category: "tool"
-tags: ["tool-documentation"]
+tags: ["active-directory", "windows", "credential-extraction", "lateral-movement", "kerberos"]
 sources:
-  - type: readme
+  - type: github
     url: "https://github.com/fortra/impacket"
-last_updated: "2025-12-26"
+  - type: pypi
+    url: "https://pypi.org/project/impacket/"
+last_updated: "2025-12-27"
 ---
 
-# impacket
+# Impacket
 
-## README
+## Table of Contents
 
-<img width="2043" height="571" alt="Impacket_light" src="https://github.com/user-attachments/assets/14aed700-0c6e-4865-ac53-686b91874f50" />
+- [Overview](#overview)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Key Scripts](#key-scripts)
+- [Documentation Files](#documentation-files)
 
-Impacket
-========
+## Overview
 
-[![Latest Version](https://img.shields.io/pypi/v/impacket.svg)](https://pypi.python.org/pypi/impacket/)
-[![Build and test Impacket](https://github.com/fortra/impacket/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/fortra/impacket/actions/workflows/build_and_test.yml)
+Impacket is a Python library for working with network protocols, focused on providing low-level programmatic access to packets. It is the go-to toolkit for Active Directory penetration testing, offering scripts for credential extraction, lateral movement, and Kerberos attacks.
 
-Copyright Fortra, LLC and its affiliated companies. All rights reserved.
+**Supported Protocols:**
+- SMB1, SMB2, SMB3 (high-level implementations)
+- MSRPC over TCP, SMB, and HTTP
+- Kerberos authentication (password, hashes, tickets, keys)
+- LDAP and MSSQL (TDS)
+- Various MSRPC interfaces (SAMR, LSAD, DRSUAPI, etc.)
 
-Impacket was originally created by [SecureAuth](https://www.secureauth.com/labs/open-source-tools/impacket), and now maintained by Fortra's Core Security.
+## Installation
 
-Impacket is a collection of Python classes for working with network
-protocols. Impacket is focused on providing low-level
-programmatic access to the packets and for some protocols (e.g.
-SMB1-3 and MSRPC) the protocol implementation itself.
-Packets can be constructed from scratch, as well as parsed from 
-raw data, and the object-oriented API makes it simple to work with 
-deep hierarchies of protocols. The library provides a set of tools
-as examples of what can be done within the context of this library.
+```bash
+# Install via pipx (recommended)
+python3 -m pipx install impacket
 
-What protocols are featured?
-----------------------------
+# Install from source
+git clone https://github.com/fortra/impacket.git
+cd impacket
+python3 -m pipx install .
 
- * Ethernet, Linux "Cooked" capture.
- * IP, TCP, UDP, ICMP, IGMP, ARP.
- * IPv4 and IPv6 Support.
- * NMB and SMB1, SMB2 and SMB3 (high-level implementations).
- * MSRPC version 5, over different transports: TCP, SMB/TCP, SMB/NetBIOS and HTTP.
- * Plain, NTLM and Kerberos authentications, using password/hashes/tickets/keys.
- * Portions/full implementation of the following MSRPC interfaces: EPM, DTYPES, LSAD, LSAT, NRPC, RRP, SAMR, SRVS, WKST, SCMR, BKRP, DHCPM, EVEN6, MGMT, SASEC, TSCH, DCOM, WMI, OXABREF, NSPI, OXNSPI.
- * Portions of TDS (MSSQL) and LDAP protocol implementations.
- 
-Maintainer
-==========
+# Kali Linux
+sudo apt install python3-impacket impacket-scripts
+```
 
-[Core Security](https://www.coresecurity.com/)
+## Quick Start
 
+### Dump Credentials with secretsdump.py
 
-Table of Contents
-=================
+```bash
+# Using password
+secretsdump.py domain.local/admin:Password123@dc01.domain.local
 
-* [Getting Impacket](#getting-impacket)
-* [Setup](#setup)
-* [Testing](#testing)
-* [Licensing](#licensing)
-* [Disclaimer](#disclaimer)
-* [Contact Us](#contact-us)
+# Using NTLM hash (pass-the-hash)
+secretsdump.py -hashes :aad3b435b51404eeaad3b435b51404ee domain.local/admin@dc01
 
-Getting Impacket
-================
+# DCSync attack for specific user
+secretsdump.py -just-dc-user krbtgt domain.local/admin:Pass@dc01
+```
 
-### Latest version
+### Remote Execution with psexec.py
 
-* Impacket v0.13.0
+```bash
+# Get SYSTEM shell
+psexec.py domain.local/admin:Password123@target.domain.local
 
-  [![Python versions](https://img.shields.io/pypi/pyversions/impacket.svg)](https://pypi.python.org/pypi/impacket/)
+# Pass-the-hash
+psexec.py -hashes :ntlmhash domain.local/admin@target
+```
 
-[Current and past releases](https://github.com/fortra/impacket/releases)
+### AS-REP Roasting with GetNPUsers.py
 
-### Development version
+```bash
+# Check for users without pre-auth
+GetNPUsers.py domain.local/ -usersfile users.txt -no-pass -dc-ip 10.10.10.1
 
-* Impacket v0.14.0-dev (**[master branch](https://github.com/fortra/impacket/tree/master)**)
+# Output hashcat format
+GetNPUsers.py domain.local/user -no-pass -format hashcat
+```
 
-  [![Python versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13-blue.svg)](https://github.com/fortra/impacket/tree/master)
+### Kerberoasting with GetUserSPNs.py
 
+```bash
+# Request service tickets
+GetUserSPNs.py domain.local/user:password -dc-ip 10.10.10.1 -request
+```
 
-Setup
-=====
+## Key Scripts
 
-### Quick start
+| Script | Description |
+|--------|-------------|
+| `secretsdump.py` | Dump SAM, LSA secrets, cached creds, NTDS.dit via DCSync |
+| `psexec.py` | Remote shell via SMB service creation (SYSTEM) |
+| `wmiexec.py` | Semi-interactive shell via WMI (no disk writes) |
+| `smbexec.py` | Remote shell via SMB, similar to psexec |
+| `atexec.py` | Execute commands via Task Scheduler |
+| `dcomexec.py` | Remote shell via DCOM (MMC20, ShellWindows, ShellBrowserWindow) |
+| `GetNPUsers.py` | AS-REP Roasting - get hashes for users without preauth |
+| `GetUserSPNs.py` | Kerberoasting - request TGS for SPNs |
+| `getTGT.py` | Request TGT with password, hash, or AES key |
+| `getST.py` | Request service ticket using TGT |
+| `ticketer.py` | Create golden/silver tickets |
+| `ticketConverter.py` | Convert tickets between ccache and kirbi formats |
+| `smbclient.py` | Interactive SMB client (dir, get, put, etc.) |
+| `ntlmrelayx.py` | NTLM relay attacks with multiple protocols |
+| `mssqlclient.py` | Interactive MSSQL client |
+| `rpcdump.py` | Enumerate RPC endpoints |
+| `lookupsid.py` | SID brute-forcing / user enumeration |
+| `samrdump.py` | Enumerate users via SAMR |
+| `reg.py` | Remote registry manipulation |
+| `services.py` | Remote Windows service management |
 
-> :information_source: We recommend using `pipx` over `pip` for system-wide installations.
+## Documentation Files
 
-In order to grab the latest stable release run:
-
-    python3 -m pipx install impacket
-
-If you want to play with the unreleased changes, download the development 
-version from the [master branch](https://github.com/fortra/impacket/tree/master),
-extract the package, and execute the following command from the
-directory where Impacket has been unpacked:
-
-    python3 -m pipx install .
-
-### Docker Support
-
-Build Impacket's image:
-
-      $ docker build -t "impacket:latest" .
-
-Using Impacket's image:
-
-      $ docker run -it --rm "impacket:latest"
-
-Testing
-=======
-
-The library leverages the [pytest](https://docs.pytest.org/) framework for organizing
-and marking test cases, [tox](https://tox.readthedocs.io/) to automate the process of
-running them across supported Python versions, and [coverage](https://coverage.readthedocs.io/)
-to obtain coverage statistics.
-
-A [comprehensive testing guide](TESTING.md) is available.
-
-
-Licensing
-=========
-
-This software is provided under a slightly modified version of
-the Apache Software License. See the accompanying [LICENSE](LICENSE) file for
-more information.
-
-SMBv1 and NetBIOS support based on Pysmb by Michael Teo.
-
-Disclaimer
-==========
-
-The spirit of this Open Source initiative is to help security researchers,
-and the community, speed up research and educational activities related to
-the implementation of networking protocols and stacks.
-
-The information in this repository is for research and educational purposes
-and not meant to be used in production environments and/or as part
-of commercial products.
-
-If you desire to use this code or some part of it for your own uses, we
-recommend applying proper security development life cycle and secure coding
-practices, as well as generate and track the respective indicators of
-compromise according to your needs.
-
-
-Contact Us
-==========
-
-Whether you want to report a bug, send a patch, or give some suggestions
-on this package, reach out to us at https://www.coresecurity.com/about/contact.
-
-For security-related questions check our [security policy](SECURITY.md).
-
-
+| File | Description |
+|------|-------------|
+| [README.md](README.md) | This file - overview and quick reference |
+| [scripts.md](scripts.md) | Comprehensive script reference with detailed examples |
+| [github.md](github.md) | GitHub repository information |

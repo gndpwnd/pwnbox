@@ -1,220 +1,296 @@
-# gobuster - Official Documentation
+# Gobuster - Official Documentation
 
-Source: https://github.com/OJ/gobuster/blob/master/README.md
-
-Downloaded: 2025-12-26T20:05:46.562125
+Source: https://github.com/OJ/gobuster
 
 ---
 
-Skip to content
+## Overview
 
-## Navigation Menu
+Gobuster is a tool used to brute-force:
+- URIs (directories and files) in web sites
+- DNS subdomains (with wildcard support)
+- Virtual Host names on target web servers
+- Open Amazon S3 buckets
+- Open Google Cloud buckets
+- TFTP servers
 
-Toggle navigation
+## Requirements
 
-[ ](/)
+- Go 1.24 or higher (for building from source)
 
-[ Sign in
-](/login?return_to=https%3A%2F%2Fgithub.com%2FOJ%2Fgobuster%2Fblob%2Fmaster%2FREADME.md)
+## Installation
 
-Appearance settings
+### From Binary Releases
 
-  * Platform
+Pre-compiled binaries are available from the [releases page](https://github.com/OJ/gobuster/releases).
 
-    * AI CODE CREATION
-      * [GitHub CopilotWrite better code with AI](https://github.com/features/copilot)
-      * [GitHub SparkBuild and deploy intelligent apps](https://github.com/features/spark)
-      * [GitHub ModelsManage and compare prompts](https://github.com/features/models)
-      * [MCP RegistryNewIntegrate external tools](https://github.com/mcp)
+### Using Go Install
 
-    * DEVELOPER WORKFLOWS
-      * [ActionsAutomate any workflow](https://github.com/features/actions)
-      * [CodespacesInstant dev environments](https://github.com/features/codespaces)
-      * [IssuesPlan and track work](https://github.com/features/issues)
-      * [Code ReviewManage code changes](https://github.com/features/code-review)
+```bash
+go install github.com/OJ/gobuster/v3@latest
+```
 
-    * APPLICATION SECURITY
-      * [GitHub Advanced SecurityFind and fix vulnerabilities](https://github.com/security/advanced-security)
-      * [Code securitySecure your code as you build](https://github.com/security/advanced-security/code-security)
-      * [Secret protectionStop leaks before they start](https://github.com/security/advanced-security/secret-protection)
+### From Source
 
-    * EXPLORE
-      * [Why GitHub](https://github.com/why-github)
-      * [Documentation](https://docs.github.com)
-      * [Blog](https://github.blog)
-      * [Changelog](https://github.blog/changelog)
-      * [Marketplace](https://github.com/marketplace)
+```bash
+git clone https://github.com/OJ/gobuster.git
+cd gobuster
+go get && go build
+```
 
-[View all features](https://github.com/features)
+### Docker
 
-  * Solutions
+```bash
+docker pull ghcr.io/oj/gobuster:latest
+docker run ghcr.io/oj/gobuster:latest -h
+```
 
-    * BY COMPANY SIZE
-      * [Enterprises](https://github.com/enterprise)
-      * [Small and medium teams](https://github.com/team)
-      * [Startups](https://github.com/enterprise/startups)
-      * [Nonprofits](https://github.com/solutions/industry/nonprofits)
+## Available Modes
 
-    * BY USE CASE
-      * [App Modernization](https://github.com/solutions/use-case/app-modernization)
-      * [DevSecOps](https://github.com/solutions/use-case/devsecops)
-      * [DevOps](https://github.com/solutions/use-case/devops)
-      * [CI/CD](https://github.com/solutions/use-case/ci-cd)
-      * [View all use cases](https://github.com/solutions/use-case)
+| Mode | Description |
+|------|-------------|
+| `dir` | Directory/file enumeration mode |
+| `dns` | DNS subdomain enumeration mode |
+| `fuzz` | Fuzzing mode (replaces FUZZ keyword in URL) |
+| `gcs` | Google Cloud bucket enumeration mode |
+| `s3` | AWS S3 bucket enumeration mode |
+| `tftp` | TFTP enumeration mode |
+| `vhost` | Virtual host enumeration mode (not the same as DNS!) |
 
-    * BY INDUSTRY
-      * [Healthcare](https://github.com/solutions/industry/healthcare)
-      * [Financial services](https://github.com/solutions/industry/financial-services)
-      * [Manufacturing](https://github.com/solutions/industry/manufacturing)
-      * [Government](https://github.com/solutions/industry/government)
-      * [View all industries](https://github.com/solutions/industry)
+## Global Flags
 
-[View all solutions](https://github.com/solutions)
+These flags apply to all modes:
 
-  * Resources
+```
+Flags:
+      --debug                 Enable debug output
+      --delay duration        Time each thread waits between requests (e.g. 1500ms)
+  -h, --help                  help for gobuster
+      --no-color              Disable color output
+      --no-error              Don't display errors
+  -z, --no-progress           Don't display progress
+  -o, --output string         Output file to write results to (defaults to stdout)
+  -p, --pattern string        File containing replacement patterns
+  -q, --quiet                 Don't print the banner and other noise
+  -t, --threads int           Number of concurrent threads (default 10)
+  -v, --verbose               Verbose output (errors)
+  -w, --wordlist string       Path to the wordlist. Set to - to use STDIN.
+      --wordlist-offset int   Resume from a given position in the wordlist (defaults to 0)
+```
 
-    * EXPLORE BY TOPIC
-      * [AI](https://github.com/resources/articles?topic=ai)
-      * [Software Development](https://github.com/resources/articles?topic=software-development)
-      * [DevOps](https://github.com/resources/articles?topic=devops)
-      * [Security](https://github.com/resources/articles?topic=security)
-      * [View all topics](https://github.com/resources/articles)
+## DIR Mode
 
-    * EXPLORE BY TYPE
-      * [Customer stories](https://github.com/customer-stories)
-      * [Events & webinars](https://github.com/resources/events)
-      * [Ebooks & reports](https://github.com/resources/whitepapers)
-      * [Business insights](https://github.com/solutions/executive-insights)
-      * [GitHub Skills](https://skills.github.com)
+```
+Usage:
+  gobuster dir [flags]
 
-    * SUPPORT & SERVICES
-      * [Documentation](https://docs.github.com)
-      * [Customer support](https://support.github.com)
-      * [Community forum](https://github.com/orgs/community/discussions)
-      * [Trust center](https://github.com/trust-center)
-      * [Partners](https://github.com/partners)
+Flags:
+  -f, --add-slash                         Append / to each request
+  -c, --cookies string                    Cookies to use for the requests
+  -d, --discover-backup                   Also search for backup files by appending multiple backup extensions
+      --exclude-length ints               Exclude results by content length
+  -e, --expanded                          Expanded mode, print full URLs
+  -x, --extensions string                 File extension(s) to search for
+  -r, --follow-redirect                   Follow redirects
+  -H, --headers stringArray               Specify HTTP headers, -H 'Header1: val1' -H 'Header2: val2'
+  -l, --include-length                    Include the length of the body in the output
+  -k, --no-tls-validation                 Skip TLS certificate verification
+  -n, --no-status                         Don't print status codes
+  -P, --password string                   Password for Basic Auth
+      --proxy string                      Proxy to use for requests [http(s)://host:port]
+      --random-agent                      Use a random User-Agent string
+      --retry                             Retry on errors
+      --retry-attempts int                Number of times to retry (default 3)
+  -s, --status-codes string               Positive status codes (default "200,204,301,302,307,401,403,405,500")
+  -b, --status-codes-blacklist string     Negative status codes (will override status-codes if set)
+      --timeout duration                  HTTP Timeout (default 10s)
+  -u, --url string                        The target URL
+  -a, --useragent string                  Set the User-Agent string (default "gobuster/3.x")
+  -U, --username string                   Username for Basic Auth
+  -m, --method string                     HTTP method (default "GET")
+```
 
-  * Open Source
+## DNS Mode
 
-    * COMMUNITY
-      * [GitHub SponsorsFund open source developers](https://github.com/sponsors)
+```
+Usage:
+  gobuster dns [flags]
 
-    * PROGRAMS
-      * [Security Lab](https://securitylab.github.com)
-      * [Maintainer Community](https://maintainers.github.com)
-      * [Accelerator](https://github.com/accelerator)
-      * [Archive Program](https://archiveprogram.github.com)
+Flags:
+  -d, --domain string      Target domain
+  -r, --resolver string    Use custom DNS server (format server.com or server.com:port)
+  -c, --show-cname         Show CNAME records
+  -i, --show-ips           Show IP addresses
+      --timeout duration   DNS resolver timeout (default 1s)
+      --wildcard           Force continued operation when wildcard found
+```
 
-    * REPOSITORIES
-      * [Topics](https://github.com/topics)
-      * [Trending](https://github.com/trending)
-      * [Collections](https://github.com/collections)
+## VHOST Mode
 
-  * Enterprise
+```
+Usage:
+  gobuster vhost [flags]
 
-    * ENTERPRISE SOLUTIONS
-      * [Enterprise platformAI-powered developer platform](https://github.com/enterprise)
+Flags:
+      --append-domain              Append main domain to words from wordlist (word.example.com)
+  -c, --cookies string             Cookies to use for the requests
+      --domain string              Domain to append when using --append-domain
+      --exclude-length ints        Exclude results by content length
+  -r, --follow-redirect            Follow redirects
+  -H, --headers stringArray        Specify HTTP headers, -H 'Header1: val1' -H 'Header2: val2'
+  -m, --method string              HTTP method (default "GET")
+  -k, --no-tls-validation          Skip TLS certificate verification
+  -P, --password string            Password for Basic Auth
+      --proxy string               Proxy to use for requests [http(s)://host:port]
+      --random-agent               Use a random User-Agent string
+      --retry                      Retry on errors
+      --retry-attempts int         Number of times to retry (default 3)
+      --timeout duration           HTTP Timeout (default 10s)
+  -u, --url string                 The target URL
+  -a, --useragent string           Set the User-Agent string
+  -U, --username string            Username for Basic Auth
+```
 
-    * AVAILABLE ADD-ONS
-      * [GitHub Advanced SecurityEnterprise-grade security features](https://github.com/security/advanced-security)
-      * [Copilot for BusinessEnterprise-grade AI features](https://github.com/features/copilot/copilot-business)
-      * [Premium SupportEnterprise-grade 24/7 support](https://github.com/premium-support)
+## FUZZ Mode
 
-  * [Pricing](https://github.com/pricing)
+```
+Usage:
+  gobuster fuzz [flags]
 
-Search or jump to...
+Flags:
+  -b, --excludestatuscodes string   Negative status codes
+      --exclude-length ints         Exclude results by content length
+  -r, --follow-redirect             Follow redirects
+  -H, --headers stringArray         Specify HTTP headers (can contain FUZZ keyword)
+  -m, --method string               HTTP method (default "GET")
+  -d, --body string                 Request body (can contain FUZZ keyword)
+  -k, --no-tls-validation           Skip TLS certificate verification
+  -P, --password string             Password for Basic Auth
+      --proxy string                Proxy to use for requests
+      --random-agent                Use a random User-Agent string
+      --retry                       Retry on errors
+      --retry-attempts int          Number of times to retry (default 3)
+      --timeout duration            HTTP Timeout (default 10s)
+  -u, --url string                  URL containing FUZZ keyword
+  -a, --useragent string            Set the User-Agent string
+  -U, --username string             Username for Basic Auth
+  -c, --cookies string              Cookies (can contain FUZZ keyword)
+```
 
-# Search code, repositories, users, issues, pull requests...
+## S3 Mode
 
-Search
+```
+Usage:
+  gobuster s3 [flags]
 
-Clear
+Flags:
+  -m, --maxfiles int    Max files to list when listing buckets (default 5)
+```
 
-[Search syntax tips](https://docs.github.com/search-github/github-code-
-search/understanding-github-code-search-syntax)
+## GCS Mode
 
-#  Provide feedback
+```
+Usage:
+  gobuster gcs [flags]
 
-We read every piece of feedback, and take your input very seriously.
+Flags:
+  -m, --maxfiles int    Max files to list when listing buckets (default 5)
+```
 
-Include my email address so I can be contacted
+## TFTP Mode
 
-Cancel  Submit feedback
+```
+Usage:
+  gobuster tftp [flags]
 
-#  Saved searches
+Flags:
+  -s, --server string      Target TFTP server
+      --timeout duration   TFTP timeout (default 1s)
+```
 
-## Use saved searches to filter your results more quickly
+## Usage Examples
 
-Name
+### Directory Mode Examples
 
-Query
+```bash
+# Basic directory enumeration
+gobuster dir -u https://mysite.com/path/to/folder -c 'session=123456' -t 50 -w common-files.txt -x .php,.html
 
-To see all available qualifiers, see our
-[documentation](https://docs.github.com/search-github/github-code-
-search/understanding-github-code-search-syntax).
+# With custom headers
+gobuster dir -u https://mysite.com/ -w words.txt -H "Authorization: Bearer <token>"
 
-Cancel  Create saved search
+# Backup file discovery
+gobuster dir -u https://mysite.com/ -w words.txt -d
+```
 
-[ Sign in
-](/login?return_to=https%3A%2F%2Fgithub.com%2FOJ%2Fgobuster%2Fblob%2Fmaster%2FREADME.md)
+### DNS Mode Examples
 
-[ Sign up
-](/signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-
-name%3E%2F%3Crepo-name%3E%2Fblob%2Fshow&source=header-
-repo&source_repo=OJ%2Fgobuster)
+```bash
+# Basic subdomain enumeration
+gobuster dns -d mysite.com -t 50 -w common-names.txt
 
-Appearance settings
+# With IP display
+gobuster dns -d mysite.com -w common-names.txt -i
 
-Resetting focus
+# With custom DNS server
+gobuster dns -d mysite.com -w common-names.txt -r 8.8.8.8
+```
 
-You signed in with another tab or window. [Reload]() to refresh your session.
-You signed out in another tab or window. [Reload]() to refresh your session.
-You switched accounts on another tab or window. [Reload]() to refresh your
-session. Dismiss alert
+### VHOST Mode Examples
 
-{{ message }}
+```bash
+# Basic vhost enumeration
+gobuster vhost -u https://mysite.com -w common-vhosts.txt
 
-[ OJ ](/OJ) / **[gobuster](/OJ/gobuster) ** Public
+# With domain appending
+gobuster vhost -u https://mysite.com -w common-vhosts.txt --append-domain
+```
 
-  * [ Notifications ](/login?return_to=%2FOJ%2Fgobuster) You must be signed in to change notification settings
-  * [ Fork 1.5k ](/login?return_to=%2FOJ%2Fgobuster)
-  * [ Star  13.2k ](/login?return_to=%2FOJ%2Fgobuster)
+### FUZZ Mode Examples
 
-  * [ Code ](/OJ/gobuster)
-  * [ Issues 13 ](/OJ/gobuster/issues)
-  * [ Pull requests 2 ](/OJ/gobuster/pulls)
-  * [ Actions ](/OJ/gobuster/actions)
-  * [ Projects 0 ](/OJ/gobuster/projects)
-  * [ Wiki ](/OJ/gobuster/wiki)
-  * [ Security Uh oh!  There was an error while loading. [Please reload this page](). ](/OJ/gobuster/security)
-  * [ Insights ](/OJ/gobuster/pulse)
+```bash
+# Fuzz URL parameter
+gobuster fuzz -u https://example.com?FUZZ=test -w parameter-names.txt
 
-Additional navigation options
+# Fuzz with POST body
+gobuster fuzz -u https://example.com/login -m POST -d "user=FUZZ&pass=test" -w users.txt
+```
 
-  * [ Code  ](/OJ/gobuster)
-  * [ Issues  ](/OJ/gobuster/issues)
-  * [ Pull requests  ](/OJ/gobuster/pulls)
-  * [ Actions  ](/OJ/gobuster/actions)
-  * [ Projects  ](/OJ/gobuster/projects)
-  * [ Wiki  ](/OJ/gobuster/wiki)
-  * [ Security  ](/OJ/gobuster/security)
-  * [ Insights  ](/OJ/gobuster/pulse)
+### S3/GCS Mode Examples
 
-## Footer
+```bash
+# S3 bucket enumeration
+gobuster s3 -w bucket-names.txt
 
-[ ](https://github.com) (C) 2025 GitHub, Inc.
+# GCS bucket enumeration
+gobuster gcs -w bucket-names.txt
+```
 
-### Footer navigation
+## Patterns
 
-  * [Terms](https://docs.github.com/site-policy/github-terms/github-terms-of-service)
-  * [Privacy](https://docs.github.com/site-policy/privacy-policies/github-privacy-statement)
-  * [Security](https://github.com/security)
-  * [Status](https://www.githubstatus.com/)
-  * [Community](https://github.community/)
-  * [Docs](https://docs.github.com/)
-  * [Contact](https://support.github.com?tags=dotcom-footer)
-  * Manage cookies 
-  * Do not share my personal information 
+Gobuster supports pattern files to generate wordlist variations:
 
-You can’t perform that action at this time.
+```bash
+# pattern.txt contents:
+{GOBUSTER}/v1
+{GOBUSTER}/v2
+{GOBUSTER}/v3
 
+# Usage
+gobuster dir -u https://example.com -w words.txt -p pattern.txt
+```
+
+This will test combinations like `api/v1`, `api/v2`, `api/v3` for each word in the wordlist.
+
+## Wordlist from STDIN
+
+```bash
+cat wordlist.txt | gobuster dir -u https://example.com -w -
+```
+
+## Resources
+
+- **GitHub Repository**: https://github.com/OJ/gobuster
+- **Releases**: https://github.com/OJ/gobuster/releases
+- **Issues**: https://github.com/OJ/gobuster/issues
+- **Wiki**: https://github.com/OJ/gobuster/wiki

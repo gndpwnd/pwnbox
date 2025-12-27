@@ -1,89 +1,123 @@
 ---
 title: "nmap"
 category: "tool"
-tags: ["tool-documentation"]
-sources:
-  - type: manpage
-    url: "https://man.archlinux.org/man/nmap.1.en"
-  - type: readme
-    url: "https://github.com/nmap/nmap"
-last_updated: "2025-12-26"
+subcategory: "reconnaissance"
+tags: ["port-scanner", "network-discovery", "service-detection"]
+last_updated: "2025-12-27"
 ---
 
 # nmap
 
-## Man Page
+> The Network Mapper - comprehensive port scanner, service detection, and NSE scripting engine.
 
-# **nmap -A -T4 scanme.nmap.org**
-Nmap scan report for scanme.nmap.org (74.207.244.221)
-Host is up (0.029s latency).
-rDNS record for 74.207.244.221: li86-221.members.linode.com
-Not shown: 995 closed ports
-PORT     STATE    SERVICE     VERSION
-22/tcp   open     ssh         OpenSSH 5.3p1 Debian 3ubuntu7 (protocol 2.0)
-| ssh-hostkey: 1024 8d:60:f1:7c:ca:b7:3d:0a:d6:67:54:9d:69:d9:b9:dd (DSA)
-|_2048 79:f8:09:ac:d4:e2:32:42:10:49:d3:bd:20:82:85:ec (RSA)
-80/tcp   open     http        Apache httpd 2.2.14 ((Ubuntu))
-|_http-title: Go ahead and ScanMe!
-646/tcp  filtered ldp
-1720/tcp filtered H.323/Q.931
-9929/tcp open     nping-echo  Nping echo
-Device type: general purpose
-Running: Linux 2.6.X
-OS CPE: cpe:/o:linux:linux_kernel:2.6.39
-OS details: Linux 2.6.39
-Network Distance: 11 hops
-Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
-TRACEROUTE (using port 53/tcp)
-HOP RTT      ADDRESS
-[Cut first 10 hops for brevity]
-11  17.65 ms li86-221.members.linode.com (74.207.244.221)
-Nmap done: 1 IP address (1 host up) scanned in 14.40 seconds
+## Table of Contents
 
-## README
+- [Overview](#overview)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Common Scan Types](#common-scan-types)
+- [Timing Templates](#timing-templates)
+- [Output Formats](#output-formats)
+- [Useful Options](#useful-options)
+- [Documentation Files](#documentation-files)
 
-Nmap [![Build Status](https://travis-ci.org/nmap/nmap.svg?branch=master)](https://travis-ci.org/nmap/nmap) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/nmap/nmap.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nmap/nmap/context:cpp) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/nmap/nmap.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nmap/nmap/context:python) [![Total alerts](https://img.shields.io/lgtm/alerts/g/nmap/nmap.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nmap/nmap/alerts/)
-====
+## Overview
 
-Nmap is released under a custom license, which is based on (but not compatible
-with) GPLv2. The Nmap license allows free usage by end users, and we also offer
-a commercial license for companies that wish to redistribute Nmap technology
-with their products. See [Nmap Copyright and Licensing](https://nmap.org/book/man-legal.html)
-for full details.
+Nmap is a free and open source utility for network discovery and security auditing. It uses raw IP packets to determine available hosts, services, operating systems, packet filters/firewalls, and more.
 
-The latest version of this software as well as binary installers for Windows,
-macOS, and Linux (RPM) are available from
-[Nmap.org](https://nmap.org/download.html)
+## Installation
 
-Full documentation is also available
-[on the Nmap.org website](https://nmap.org/docs.html).
+```bash
+# Debian/Ubuntu/Kali
+sudo apt install nmap
 
-Questions and suggestions may be sent to
-[the Nmap-dev mailing list](https://nmap.org/mailman/listinfo/dev).
+# Arch Linux
+sudo pacman -S nmap
 
-Installing
-----------
-Ideally, you should be able to just type:
+# macOS
+brew install nmap
+```
 
-    ./configure
-    make
-    make install
+## Quick Start
 
-For far more in-depth compilation, installation, and removal notes, read the
-[Nmap Install Guide](https://nmap.org/book/install.html) on Nmap.org.
+```bash
+# Basic scan (top 1000 ports)
+nmap 10.10.10.1
 
-Using Nmap
-----------
-Nmap has a lot of features, but getting started is as easy as running `nmap
-scanme.nmap.org`. Running `nmap` without any parameters will give a helpful
-list of the most common options, which are discussed in depth in [the man
-page](https://nmap.org/book/man.html). Users who prefer a graphical interface
-can use the included [Zenmap front-end](https://nmap.org/zenmap/).
+# Aggressive scan with OS/version detection
+nmap -A -T4 10.10.10.1
 
-Contributing
-------------
-Information about filing bug reports and contributing to the Nmap project can
-be found in the [HACKING](HACKING) and [CONTRIBUTING.md](CONTRIBUTING.md)
-files.
+# Full TCP scan with scripts and version detection
+nmap -sC -sV -p- 10.10.10.1
 
+# UDP scan (requires root)
+sudo nmap -sU -p- 10.10.10.1
 
+# Scan multiple targets
+nmap 10.10.10.1-254
+nmap 10.10.10.0/24
+nmap -iL targets.txt
+```
+
+## Common Scan Types
+
+| Scan | Command | Description |
+|------|---------|-------------|
+| SYN scan | `nmap -sS` | Default stealth scan (requires root) |
+| Connect scan | `nmap -sT` | Full TCP connection (no root needed) |
+| UDP scan | `nmap -sU` | UDP port scan |
+| Ping sweep | `nmap -sn` | Host discovery only, no port scan |
+| Version detection | `nmap -sV` | Probe open ports for service info |
+| OS detection | `nmap -O` | Detect operating system |
+| Script scan | `nmap -sC` | Run default NSE scripts |
+| Aggressive | `nmap -A` | OS, version, scripts, traceroute |
+
+## Timing Templates
+
+| Template | Flag | Use Case |
+|----------|------|----------|
+| Paranoid | `-T0` | IDS evasion (very slow) |
+| Sneaky | `-T1` | IDS evasion |
+| Polite | `-T2` | Reduced bandwidth usage |
+| Normal | `-T3` | Default timing |
+| Aggressive | `-T4` | Fast, reliable networks |
+| Insane | `-T5` | Very fast, may miss ports |
+
+## Output Formats
+
+```bash
+# Normal output
+nmap -oN scan.txt 10.10.10.1
+
+# XML output
+nmap -oX scan.xml 10.10.10.1
+
+# Grepable output
+nmap -oG scan.gnmap 10.10.10.1
+
+# All formats at once
+nmap -oA scan 10.10.10.1
+```
+
+## Useful Options
+
+| Option | Description |
+|--------|-------------|
+| `-p-` | Scan all 65535 ports |
+| `-p 80,443` | Scan specific ports |
+| `-p 1-1000` | Scan port range |
+| `--top-ports 100` | Scan top N ports |
+| `-Pn` | Skip host discovery |
+| `-n` | No DNS resolution |
+| `-v` / `-vv` | Increase verbosity |
+| `--min-rate 1000` | Minimum packets per second |
+| `--script vuln` | Run vulnerability scripts |
+| `--script-args` | Pass arguments to scripts |
+
+## Documentation Files
+
+| File | Description |
+|------|-------------|
+| [official_docs.md](official_docs.md) | Official nmap documentation and man page |
+| [reference.md](reference.md) | Quick reference and cheat sheet |
+| [scripts.md](scripts.md) | NSE scripts reference and examples |

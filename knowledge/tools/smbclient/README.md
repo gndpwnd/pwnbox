@@ -1,173 +1,137 @@
 ---
 title: "smbclient"
-category: "enumeration"
-tags: ["smb", "windows", "file-transfer", "enumeration", "samba", "shares"]
+category: tool
+subcategory: enumeration
+tags: ["smb", "cifs", "windows", "file-transfer", "samba", "shares"]
+last_updated: 2025-12-27
 ---
 
 # smbclient
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Key Commands](#key-commands)
+- [Common Scenarios](#common-scenarios)
+- [Documentation](#documentation)
+
 ## Overview
 
-smbclient is a command-line SMB/CIFS client that provides FTP-like functionality for accessing Windows file shares from Linux and Unix systems. It is part of the Samba suite and enables security professionals to enumerate shares, transfer files, and interact with SMB servers during penetration testing engagements. SMB (Server Message Block) operates primarily over TCP ports 139 and 445.
+smbclient is a command-line SMB/CIFS client from the Samba suite that provides FTP-like access to Windows file shares. It enables enumeration of shares, file transfers, and interaction with SMB servers during penetration testing. SMB operates on TCP ports 139 and 445.
 
 ## Installation
 
-smbclient is typically pre-installed on Kali Linux. For other Debian/Ubuntu systems:
-
 ```bash
-# Install smbclient
-sudo apt update
+# Debian/Ubuntu (pre-installed on Kali)
 sudo apt install smbclient
 
 # Verify installation
 smbclient --version
 ```
 
-## Basic Usage
+## Quick Start
+
+### Connecting to Shares
 
 ```bash
 # List shares anonymously (null session)
-smbclient -L //target_ip -N
-
-# List shares with credentials
-smbclient -L //target_ip -U username%password
-
-# Connect to a specific share
-smbclient //target_ip/sharename -U username%password
-
-# Connect with null session
-smbclient //target_ip/sharename -N
-
-# Execute a single command non-interactively
-smbclient //target_ip/sharename -U username%password -c 'ls'
-```
-
-## Key Features
-
-### Share Enumeration
-- List all available shares on a target system
-- Identify accessible network resources and data repositories
-- Test for anonymous/null session access
-
-### File Operations
-- Download and upload files to/from shares
-- Recursive directory operations
-- Wildcard support for batch transfers
-
-### Authentication Testing
-- Test null sessions (anonymous access)
-- Guest access verification
-- Credential-based authentication
-- Identify misconfigured shares and weak access controls
-
-### Interactive Shell Commands
-Once connected to a share, use these FTP-like commands:
-- `ls` - List directory contents
-- `cd <dir>` - Change directory
-- `pwd` - Print working directory
-- `get <file>` - Download a file
-- `put <file>` - Upload a file
-- `mget <pattern>` - Download multiple files
-- `mput <pattern>` - Upload multiple files
-- `mkdir <dir>` - Create directory
-- `rm <file>` - Delete file
-- `exit` - Close connection
-
-## Common Use Cases
-
-### Enumerate Shares with Null Session
-```bash
-# Test for anonymous access vulnerability
 smbclient -L //192.168.1.100 -N
 
-# Alternative null session syntax
-smbclient -L //192.168.1.100 -U ""
-# Press Enter when prompted for password
+# List shares with credentials
+smbclient -L //192.168.1.100 -U user%password
+
+# Connect to a share
+smbclient //192.168.1.100/share -U user%password
+
+# Connect with domain credentials
+smbclient //192.168.1.100/share -U domain/user%password -W WORKGROUP
 ```
 
-### Connect and Browse a Share
-```bash
-# Connect with credentials
-smbclient //192.168.1.100/Documents -U admin%Password123
+### Listing and Navigation
 
-# Once connected:
-smb: \> ls
-smb: \> cd Confidential
-smb: \> get sensitive_data.xlsx
-```
-
-### Download All Files Recursively
 ```bash
-# Interactive method
+# Interactive session
 smbclient //192.168.1.100/share -U user%pass
-smb: \> mask ""
-smb: \> recurse ON
-smb: \> prompt OFF
-smb: \> mget *
+smb: \> ls                    # List files
+smb: \> cd Documents          # Change directory
+smb: \> pwd                   # Print working directory
+```
 
-# One-liner for scripting
+### File Operations
+
+```bash
+# Download a file
+smb: \> get secret.txt
+
+# Upload a file
+smb: \> put payload.exe
+
+# Recursive download (one-liner)
 smbclient //192.168.1.100/share -U user%pass -c 'recurse ON; prompt OFF; mget *'
+
+# Non-interactive command execution
+smbclient //192.168.1.100/share -U user%pass -c 'ls; get config.txt'
 ```
 
-### Upload a File to a Share
-```bash
-# Interactive upload
-smbclient //192.168.1.100/share -U user%pass
-smb: \> put local_file.txt remote_file.txt
+## Key Commands
 
-# Non-interactive upload
-smbclient //192.168.1.100/share -U user%pass -c 'put /path/to/local_file.txt target_file.txt'
-```
+| Command | Description |
+|---------|-------------|
+| `ls` | List directory contents |
+| `cd <dir>` | Change directory |
+| `get <file>` | Download file |
+| `put <file>` | Upload file |
+| `mget <pattern>` | Download multiple files |
+| `mput <pattern>` | Upload multiple files |
+| `mkdir <dir>` | Create directory |
+| `rm <file>` | Delete file |
+| `recurse` | Toggle recursive operations |
+| `prompt` | Toggle confirmation prompts |
+| `exit` | Close connection |
+
+## Common Scenarios
 
 ### Access Administrative Shares
+
 ```bash
-# Access C$ administrative share (requires admin credentials)
+# C$ share (requires admin)
 smbclient //192.168.1.100/C$ -U administrator%Password123
 
-# Access ADMIN$ share
+# ADMIN$ share
 smbclient //192.168.1.100/ADMIN$ -U administrator%Password123
 ```
 
 ### Download Specific File Types
+
 ```bash
 smbclient //192.168.1.100/share -U user%pass
 smb: \> recurse ON
 smb: \> prompt OFF
 smb: \> mget *.docx
 smb: \> mget *.xlsx
-smb: \> mget *.pdf
 ```
 
-## Tips and Best Practices
+### Create Tar Backup
 
-1. **Always Test Null Sessions First**: Many misconfigured SMB servers allow anonymous access, which can reveal sensitive information without credentials.
+```bash
+# Backup entire share
+smbclient //192.168.1.100/share -U user%pass -Tc backup.tar *
 
-2. **Check Multiple Share Types**: Look for hidden shares (ending with $), administrative shares (C$, ADMIN$, IPC$), and custom shares.
+# Restore from backup
+smbclient //192.168.1.100/share -U user%pass -Tx backup.tar
+```
 
-3. **Use the -N Flag**: The `-N` flag suppresses password prompts for null session testing.
+## Documentation
 
-4. **Combine with Other Tools**: Use smbclient alongside enum4linux, smbmap, and crackmapexec for comprehensive SMB enumeration.
-
-5. **Document Everything**: Keep track of accessible shares, permissions, and sensitive files discovered during assessments.
-
-6. **Be Aware of Logging**: SMB access is typically logged on Windows systems. Know your scope and authorization.
-
-7. **Handle Spaces in Paths**: Use quotes around paths containing spaces:
-   ```bash
-   smb: \> cd "Program Files"
-   ```
-
-8. **Check Workgroup/Domain**: If connection fails, try specifying the workgroup:
-   ```bash
-   smbclient //target/share -U domain/user%pass -W WORKGROUP
-   ```
+| File | Description |
+|------|-------------|
+| [official_docs.md](official_docs.md) | Samba man page with full option reference |
 
 ## Related Tools
 
-- **smbmap** - SMB share enumeration with permission mapping
-- **enum4linux** - Comprehensive SMB/Samba enumeration script
-- **crackmapexec** - Swiss army knife for pentesting Windows/AD environments
-- **impacket-smbclient** - Python-based SMB client from Impacket suite
-- **nmap** - Use NSE scripts for SMB enumeration (`smb-enum-shares`, `smb-vuln-*`)
-- **rpcclient** - RPC client for Windows enumeration
-- **mount.cifs** - Mount SMB shares as local filesystems
+- **smbmap** - Share enumeration with permissions
+- **enum4linux** - Comprehensive SMB enumeration
+- **crackmapexec** - Windows/AD pentesting toolkit
+- **impacket-smbclient** - Python SMB client
