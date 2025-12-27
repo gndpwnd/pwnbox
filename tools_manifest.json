@@ -77,129 +77,129 @@
     }
   },
   "documentation_status": {
-    "bloodhound": {
+    "nmap": {
       "status": "documented",
-      "updated": "2025-12-26T18:32:01.089541"
-    },
-    "chisel": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:05.363194"
-    },
-    "crackmapexec": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:09.694133"
-    },
-    "enum4linux": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:14.044798"
-    },
-    "evil-winrm": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:18.276420"
-    },
-    "feroxbuster": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:22.296668"
-    },
-    "gobuster": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:26.570569"
-    },
-    "hashcat": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:30.799250"
-    },
-    "hydra": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:33.240048"
-    },
-    "impacket": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:37.482051"
-    },
-    "john": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:41.867864"
-    },
-    "kerbrute": {
-      "status": "documented",
-      "updated": "2025-12-26T18:42:37.816832"
-    },
-    "ligolo-ng": {
-      "status": "documented",
-      "updated": "2025-12-26T18:42:42.045421"
-    },
-    "linpeas": {
-      "status": "documented",
-      "updated": "2025-12-26T18:32:53.570725"
+      "updated": "2025-12-26T19:13:45.566449"
     },
     "masscan": {
       "status": "documented",
-      "updated": "2025-12-26T18:32:56.014449"
-    },
-    "metasploit-framework": {
-      "status": "documented",
-      "updated": "2025-12-26T18:33:00.657672"
-    },
-    "mimikatz": {
-      "status": "documented",
-      "updated": "2025-12-26T18:42:46.306701"
-    },
-    "msfvenom": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:42:49.679827"
-    },
-    "nc": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:42:53.436899"
-    },
-    "netexec": {
-      "status": "documented",
-      "updated": "2025-12-26T18:33:15.943184"
-    },
-    "nmap": {
-      "status": "documented",
-      "updated": "2025-12-26T18:33:18.184889"
-    },
-    "proxychains": {
-      "status": "documented",
-      "updated": "2025-12-26T18:42:57.634653"
-    },
-    "pspy": {
-      "status": "documented",
-      "updated": "2025-12-26T18:43:01.777085"
-    },
-    "responder": {
-      "status": "documented",
-      "updated": "2025-12-26T18:33:29.692369"
-    },
-    "rlwrap": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:43:05.466443"
+      "updated": "2025-12-26T19:13:45.566470"
     },
     "rustscan": {
       "status": "documented",
-      "updated": "2025-12-26T18:33:37.898365"
+      "updated": "2025-12-26T19:13:45.566479"
+    },
+    "gobuster": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566487"
+    },
+    "feroxbuster": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566515"
+    },
+    "enum4linux": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566529"
     },
     "smbclient": {
-      "status": "not_found",
-      "updated": "2025-12-26T18:43:09.260167"
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566537"
     },
     "smbmap": {
       "status": "documented",
-      "updated": "2025-12-26T18:33:46.032870"
+      "updated": "2025-12-26T19:13:45.566544"
     },
-    "socat": {
+    "bloodhound": {
       "status": "documented",
-      "updated": "2025-12-26T18:33:50.241525"
+      "updated": "2025-12-26T19:13:45.566551"
+    },
+    "kerbrute": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566557"
+    },
+    "responder": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566566"
+    },
+    "crackmapexec": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566573"
+    },
+    "netexec": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566580"
+    },
+    "impacket": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566587"
+    },
+    "evil-winrm": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566593"
+    },
+    "metasploit-framework": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566600"
+    },
+    "msfvenom": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566610"
+    },
+    "hashcat": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566617"
+    },
+    "john": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566624"
+    },
+    "hydra": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566631"
+    },
+    "chisel": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566638"
+    },
+    "ligolo-ng": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566645"
+    },
+    "proxychains": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566652"
     },
     "ssh": {
       "status": "documented",
-      "updated": "2025-12-26T18:33:53.159031"
+      "updated": "2025-12-26T19:13:45.566659"
+    },
+    "socat": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566666"
+    },
+    "linpeas": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566672"
     },
     "winpeas": {
       "status": "documented",
-      "updated": "2025-12-26T18:33:57.271486"
+      "updated": "2025-12-26T19:13:45.566679"
+    },
+    "pspy": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566685"
+    },
+    "mimikatz": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566692"
+    },
+    "nc": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566699"
+    },
+    "rlwrap": {
+      "status": "documented",
+      "updated": "2025-12-26T19:13:45.566706"
     }
   }
 }
