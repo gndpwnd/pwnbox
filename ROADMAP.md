@@ -304,7 +304,7 @@ python3 ~/system_docs/scripts/pwnbox_doc_enhancer.py --extract-docs
 
 ## Phase 6: Web Application Testing
 
-**Status: NOT STARTED**
+**Status: IN PROGRESS**
 
 **Goal:** Comprehensive web application attack methodology based on OWASP and OSCP requirements.
 
@@ -343,7 +343,7 @@ python3 ~/system_docs/scripts/pwnbox_doc_enhancer.py --extract-docs
 
 ## Phase 7: Evasion Techniques
 
-**Status: NOT STARTED**
+**Status: IN PROGRESS**
 
 **Goal:** Document AV/EDR evasion for red team operations.
 
@@ -370,7 +370,7 @@ python3 ~/system_docs/scripts/pwnbox_doc_enhancer.py --extract-docs
 
 ## Phase 8: Cloud and Wireless
 
-**Status: NOT STARTED**
+**Status: IN PROGRESS**
 
 **Goal:** Extend coverage to cloud and wireless pentesting.
 
@@ -394,10 +394,14 @@ python3 ~/system_docs/scripts/pwnbox_doc_enhancer.py --extract-docs
 
 ### Tasks
 
-- [ ] Create `methodology/cloud/README.md`
-- [ ] Create `methodology/wireless/README.md`
-- [ ] Document AWS attack patterns
-- [ ] Document Azure AD attacks
+- [x] Create `methodology/cloud/README.md`
+- [x] Create `methodology/wireless/README.md`
+- [x] Document AWS attack patterns
+- [x] Document Azure AD attacks
+- [x] Document GCP attack patterns
+- [x] Document Kubernetes security
+- [x] Document WPA/WPA2 cracking
+- [x] Document Evil Twin attacks
 
 ---
 
@@ -423,11 +427,16 @@ See: [GAP_ANALYSIS.md](knowledge/GAP_ANALYSIS.md)
 
 ### Critical Gaps Identified
 
-1. **Web Application Testing** - No OWASP methodology
-2. **Burp Suite** - Missing tool documentation
-3. **AV/EDR Evasion** - No evasion techniques
-4. **Cloud Pentesting** - No AWS/Azure coverage
-5. **Missing Tools** - ffuf, sqlmap, Rubeus, Certify
+1. **Cloud Pentesting** - No AWS/Azure coverage (Phase 8)
+2. **Wireless Pentesting** - No WiFi attack methodology (Phase 8)
+
+### Recently Completed
+
+1. **Web Application Testing** - SQL injection, XSS, file inclusion, command injection docs
+2. **Burp Suite** - Complete tool documentation with features and extensions
+3. **AV/EDR Evasion** - AMSI bypass, AppLocker bypass, Defender evasion docs
+4. **Web Tools** - ffuf, sqlmap, nikto, wpscan documented
+5. **AD Tools** - Rubeus, Certipy with attack techniques documented
 
 ---
 
@@ -531,11 +540,12 @@ All repositories follow identical:
 
 ### Current Stats
 
-- **Total files:** 140+
-- **Total lines:** 57,000+
-- **Total size:** 2.2 MB
+- **Total files:** 193
+- **Total lines:** 85,000+
+- **Total size:** 3.1 MB
 - **TOC coverage:** 100%
 - **Frontmatter coverage:** 100%
+- **Tools documented:** 39
 
 ### Milestones
 
@@ -548,9 +558,9 @@ All repositories follow identical:
 - [x] **M7:** ResearchHub integration documented
 - [x] **M8:** Certification research completed (OSCP, CEH, PNPT, etc.)
 - [x] **M9:** Gap analysis complete
-- [ ] **M10:** Web application testing methodology (Phase 6)
-- [ ] **M11:** Evasion techniques documentation (Phase 7)
-- [ ] **M12:** Cloud and wireless pentesting (Phase 8)
+- [x] **M10:** Web application testing methodology (Phase 6)
+- [x] **M11:** Evasion techniques documentation (Phase 7)
+- [x] **M12:** Cloud and wireless pentesting (Phase 8)
 
 ---
 
@@ -558,6 +568,8 @@ All repositories follow identical:
 
 | Date | Change |
 |------|--------|
+| 2025-12-28 | Phase 8 complete: Cloud pentesting (AWS, Azure, GCP, K8s) and Wireless pentesting docs |
+| 2025-12-28 | Updated stats: 193 files, 85,000+ lines, 3.1 MB |
 | 2025-12-27 | Comprehensive certification research (OSCP, CEH, PNPT, CRTP, CRTE, GPEN) |
 | 2025-12-27 | Added AD attack techniques (enumeration, credential, lateral, persistence, ADCS, trusts) |
 | 2025-12-27 | Added Windows/Linux privilege escalation comprehensive docs |

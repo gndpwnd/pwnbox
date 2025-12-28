@@ -7,7 +7,7 @@ tags:
   - offensive-security
   - red-team
   - attack-lifecycle
-last_updated: 2025-12-27
+last_updated: 2025-12-28
 ---
 
 # Penetration Testing Methodology
@@ -27,8 +27,12 @@ A structured approach to security assessments, covering the complete attack life
    - [Lateral Movement](#lateral-movement)
    - [Exfiltration](#exfiltration)
    - [Cleanup](#cleanup)
-3. [Phase Flow Diagram](#phase-flow-diagram)
-4. [Best Practices](#best-practices)
+3. [Specialized Areas](#specialized-areas)
+   - [Web Application Testing](#web-application-testing)
+   - [Cloud Pentesting](#cloud-pentesting)
+   - [Wireless Pentesting](#wireless-pentesting)
+4. [Phase Flow Diagram](#phase-flow-diagram)
+5. [Best Practices](#best-practices)
 
 ---
 
@@ -225,6 +229,58 @@ Removing artifacts and restoring systems to their original state.
 - Document all cleanup actions
 
 **Critical:** Always maintain detailed notes of all changes made during the assessment for accurate cleanup.
+
+---
+
+## Specialized Areas
+
+### Web Application Testing
+
+**Directory:** [web-application/](./web-application/)
+
+Dedicated methodology for testing web applications following OWASP guidelines.
+
+**Coverage:**
+- SQL Injection (In-band, Blind, Out-of-band)
+- Cross-Site Scripting (Reflected, Stored, DOM-based)
+- File Inclusion (LFI, RFI, Path Traversal)
+- Command Injection
+- File Upload Attacks
+
+**Common Tools:** Burp Suite, ffuf, sqlmap, nikto, wpscan
+
+---
+
+### Cloud Pentesting
+
+**Directory:** [cloud/](./cloud/)
+
+Security assessment of cloud infrastructure and services.
+
+| Platform | Key Topics |
+|----------|------------|
+| **AWS** | S3 misconfigurations, IAM privilege escalation, Lambda exploitation, IMDS abuse |
+| **Azure** | Azure AD enumeration, Managed Identity attacks, Storage account access |
+| **GCP** | IAM enumeration, GCS bucket access, Service account abuse |
+| **Kubernetes** | RBAC abuse, Secrets extraction, Container escapes |
+
+**Common Tools:** Pacu, ScoutSuite, ROADtools, AADInternals, kubectl
+
+---
+
+### Wireless Pentesting
+
+**Directory:** [wireless/](./wireless/)
+
+Security assessment of wireless networks.
+
+**Coverage:**
+- WPA/WPA2/WPA3 cracking
+- Evil Twin attacks
+- Wireless reconnaissance
+- Rogue AP attacks
+
+**Common Tools:** Aircrack-ng suite, Wifiphisher, Kismet, Bettercap
 
 ---
 
