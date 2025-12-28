@@ -23,8 +23,8 @@ last_updated: 2025-12-27
 - [Quick Start](#quick-start)
 - [Attack Modes](#attack-modes)
 - [Common Hash Types](#common-hash-types)
-- [AD Pentesting Quick Reference](#ad-pentesting-quick-reference)
-- [Rule-Based Attacks](#rule-based-attacks)
+- [Mask Charsets](#mask-charsets)
+- [Useful Options](#useful-options)
 - [Documentation](#documentation)
 
 ## Overview
@@ -117,91 +117,6 @@ hashcat -m 0 hashes.txt --show --outfile-format=2  # passwords only
 
 Run `hashcat --example-hashes` for full list with format examples.
 
-## AD Pentesting Quick Reference
-
-### NTLM Hashes (Mode 1000)
-
-```bash
-# Quick rockyou + rules
-hashcat -m 1000 ntlm.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
-
-# Common corporate patterns
-hashcat -m 1000 -a 3 ntlm.txt ?u?l?l?l?l?l?l?d?d?d?d
-hashcat -m 1000 -a 6 ntlm.txt usernames.txt ?d?d?d?d
-
-# Deep dive with aggressive rules
-hashcat -m 1000 ntlm.txt rockyou.txt -r /usr/share/hashcat/rules/d3ad0ne.rule
-```
-
-### NetNTLMv2 (Mode 5600)
-
-```bash
-# From Responder/ntlmrelayx captures
-hashcat -m 5600 netntlmv2.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule -O
-
-# Common patterns (slower hash, be strategic)
-hashcat -m 5600 -a 3 netntlmv2.txt ?u?l?l?l?l?l2024!
-```
-
-### Kerberoasting TGS-REP (Mode 13100)
-
-```bash
-# From GetUserSPNs.py / Rubeus
-hashcat -m 13100 kerberos.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule
-
-# Service accounts often have weak passwords
-hashcat -m 13100 -a 6 kerberos.txt service-words.txt ?d?d?d?d
-```
-
-### AS-REP Roasting (Mode 18200)
-
-```bash
-# From GetNPUsers.py
-hashcat -m 18200 asrep.txt rockyou.txt -r /usr/share/hashcat/rules/best64.rule
-```
-
-### Domain Cached Credentials (Mode 2100)
-
-```bash
-# Very slow - use focused wordlists
-hashcat -m 2100 dcc2.txt top1000.txt -r /usr/share/hashcat/rules/best64.rule -w 3
-```
-
-## Rule-Based Attacks
-
-### Best Rule Files
-
-| Rule File | Size | Use Case |
-|-----------|------|----------|
-| `best64.rule` | 64 rules | Quick first pass |
-| `rockyou-30000.rule` | 30k rules | Comprehensive |
-| `d3ad0ne.rule` | ~35k rules | Aggressive mutations |
-| `OneRuleToRuleThemAll.rule` | Optimized | Best efficiency |
-
-### Rule Attack Examples
-
-```bash
-# Single rule file
-hashcat -m 1000 hashes.txt wordlist.txt -r /usr/share/hashcat/rules/best64.rule
-
-# Chain multiple rules (multiplies candidates)
-hashcat -m 1000 hashes.txt wordlist.txt -r rules/best64.rule -r rules/toggles1.rule
-
-# Generate random rules
-hashcat -m 1000 hashes.txt wordlist.txt -g 50000
-```
-
-### Common Rule Functions
-
-| Rule | Description | Example |
-|------|-------------|---------|
-| `c` | Capitalize first | password -> Password |
-| `$X` | Append char X | password$1 -> password1 |
-| `^X` | Prepend char X | password^1 -> 1password |
-| `sXY` | Replace X with Y | sae -> p@ssword |
-| `u` | Uppercase all | password -> PASSWORD |
-| `d` | Duplicate | pass -> passpass |
-
 ## Mask Charsets
 
 | Charset | Description         |
@@ -229,13 +144,12 @@ hashcat -m 1000 hashes.txt wordlist.txt -g 50000
 
 | File | Description |
 |------|-------------|
-| [techniques.md](techniques.md) | Advanced cracking techniques, AD strategies, optimization |
+| [techniques.md](techniques.md) | AD cracking strategies, rule attacks, optimization |
 | [official_docs.md](official_docs.md) | Wiki content, attack guides, external resources |
-| [modes.md](modes.md) | Full hash mode list, options reference, status output |
+| [modes.md](modes.md) | Full hash mode list with examples |
 
 ## External Resources
 
 - [Hashcat Wiki](https://hashcat.net/wiki/)
 - [Example Hashes](https://hashcat.net/wiki/doku.php?id=example_hashes)
 - [Rule-based Attack Guide](https://hashcat.net/wiki/doku.php?id=rule_based_attack)
-- [Hashcat Forum](https://hashcat.net/forum/)

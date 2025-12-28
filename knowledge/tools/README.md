@@ -12,6 +12,7 @@ last_updated: "2025-12-27"
 ## Table of Contents
 
 - [Reconnaissance](#reconnaissance)
+- [Web Application](#web-application)
 - [Enumeration](#enumeration)
 - [Active Directory](#active-directory)
 - [Exploitation](#exploitation)
@@ -31,6 +32,20 @@ Network discovery and port scanning tools.
 | [nmap](nmap/) | The Network Mapper - comprehensive port scanner and service detection | [README](nmap/README.md) • [Docs](nmap/official_docs.md) • [Scripts](nmap/scripts.md) |
 | [masscan](masscan/) | Fast TCP port scanner, transmits 10 million packets per second | [README](masscan/README.md) • [Docs](masscan/official_docs.md) |
 | [rustscan](rustscan/) | Modern port scanner with adaptive scanning | [README](rustscan/README.md) • [Docs](rustscan/official_docs.md) |
+| [nikto](nikto/) | Web server scanner for vulnerabilities and misconfigurations | [README](nikto/README.md) • [Docs](nikto/official_docs.md) |
+
+---
+
+## Web Application
+
+Web application security testing tools.
+
+| Tool | Description | Docs |
+|------|-------------|------|
+| [burpsuite](burpsuite/) | Integrated platform for web security testing | [README](burpsuite/README.md) • [Docs](burpsuite/official_docs.md) |
+| [ffuf](ffuf/) | Fast web fuzzer for directory/parameter discovery | [README](ffuf/README.md) • [Docs](ffuf/official_docs.md) |
+| [sqlmap](sqlmap/) | Automatic SQL injection and database takeover tool | [README](sqlmap/README.md) • [Docs](sqlmap/official_docs.md) |
+| [wpscan](wpscan/) | WordPress security scanner | [README](wpscan/README.md) • [Docs](wpscan/official_docs.md) |
 
 ---
 
@@ -57,8 +72,10 @@ Tools for Active Directory enumeration and attacks.
 | [bloodhound](bloodhound/) | AD relationship visualizer for attack path discovery | [README](bloodhound/README.md) • [Docs](bloodhound/official_docs.md) |
 | [kerbrute](kerbrute/) | Kerberos bruteforce and enumeration tool | [README](kerbrute/README.md) • [Docs](kerbrute/official_docs.md) |
 | [responder](responder/) | LLMNR/NBT-NS/MDNS poisoner and credential harvester | [README](responder/README.md) • [Docs](responder/official_docs.md) |
-| [crackmapexec](crackmapexec/) | Swiss army knife for AD pentesting (deprecated) | [README](crackmapexec/README.md) |
+| [crackmapexec](crackmapexec/) | Swiss army knife for AD pentesting (deprecated) | [README](crackmapexec/README.md) • [Docs](crackmapexec/official_docs.md) |
 | [netexec](netexec/) | Network execution tool (CrackMapExec successor) | [README](netexec/README.md) • [Docs](netexec/official_docs.md) |
+| [rubeus](rubeus/) | Kerberos interaction and abuse toolkit | [README](rubeus/README.md) • [Docs](rubeus/official_docs.md) |
+| [certipy](certipy/) | AD Certificate Services abuse tool | [README](certipy/README.md) • [Docs](certipy/official_docs.md) |
 
 ---
 
@@ -72,6 +89,7 @@ Exploitation frameworks and tools.
 | [evil-winrm](evil-winrm/) | Ultimate WinRM shell for pentesting | [README](evil-winrm/README.md) • [Docs](evil-winrm/official_docs.md) |
 | [metasploit-framework](metasploit-framework/) | World's most used penetration testing framework | [README](metasploit-framework/README.md) • [Docs](metasploit-framework/official_docs.md) |
 | [msfvenom](msfvenom/) | Payload generator for Metasploit | [README](msfvenom/README.md) • [Docs](msfvenom/official_docs.md) |
+| [searchsploit](searchsploit/) | Exploit-DB command line search tool | [README](searchsploit/README.md) • [Docs](searchsploit/official_docs.md) |
 
 ---
 
@@ -129,9 +147,9 @@ General networking utilities.
 
 | Status | Count | Percentage |
 |--------|-------|------------|
-| Documented | 33 | 100% |
-| Refactored with TOC | 0 | 0% |
-| Complete | 0 | 0% |
+| Tools Documented | 39 | 100% |
+| With official_docs.md | 39 | 100% |
+| Full Coverage | 39 | 100% |
 
 See [ROADMAP.md](../../ROADMAP.md) for documentation standards and progress tracking.
 

@@ -12,7 +12,7 @@ last_updated: "2025-12-27"
 
 # ssh
 
-OpenSSH remote login client for secure encrypted communications between two untrusted hosts over an insecure network. Supports X11 forwarding, arbitrary TCP port forwarding, and UNIX-domain socket forwarding over the secure channel.
+> OpenSSH remote login client for secure encrypted communications
 
 ## Table of Contents
 
@@ -23,6 +23,7 @@ OpenSSH remote login client for secure encrypted communications between two untr
 - [Basic Usage](#basic-usage)
 - [Authentication Methods](#authentication-methods)
 - [Common Options](#common-options)
+- [Escape Characters](#escape-characters)
 - [Related Tools](#related-tools)
 
 ## Overview
@@ -47,9 +48,6 @@ sudo dnf install openssh-clients
 
 # Arch Linux
 sudo pacman -S openssh
-
-# macOS (pre-installed)
-# For updates: brew install openssh
 ```
 
 ## Quick Start
@@ -81,10 +79,8 @@ ssh -J bastion@jump.example.com user@target.internal
 
 | File | Description |
 |------|-------------|
-| [options.md](options.md) | Complete command-line options reference |
+| [official_docs.md](official_docs.md) | Comprehensive SSH documentation |
 | [tunneling.md](tunneling.md) | SSH tunneling (local, remote, dynamic port forwarding) |
-| [config.md](config.md) | SSH configuration file (~/.ssh/config) options |
-| [examples.md](examples.md) | Practical usage examples and common scenarios |
 | [manpage.md](manpage.md) | Full SSH man page |
 
 ## Basic Usage
@@ -95,11 +91,7 @@ ssh [options] [user@]hostname [command]
 
 # URI format
 ssh ssh://[user@]hostname[:port]
-```
 
-### Connection Examples
-
-```bash
 # Interactive shell
 ssh admin@192.168.1.100
 
@@ -108,9 +100,6 @@ ssh root@server 'systemctl status nginx'
 
 # Verbose output for debugging
 ssh -v user@hostname
-
-# Force password authentication
-ssh -o PreferredAuthentications=password user@hostname
 ```
 
 ## Authentication Methods
@@ -129,9 +118,6 @@ ssh-keygen -t ed25519 -C "user@hostname"
 
 # Copy public key to server
 ssh-copy-id -i ~/.ssh/id_ed25519.pub user@server
-
-# Or manually append to ~/.ssh/authorized_keys on server
-cat ~/.ssh/id_ed25519.pub | ssh user@server 'cat >> ~/.ssh/authorized_keys'
 ```
 
 ## Common Options
@@ -140,7 +126,6 @@ cat ~/.ssh/id_ed25519.pub | ssh user@server 'cat >> ~/.ssh/authorized_keys'
 |--------|-------------|
 | `-p port` | Connect to specified port |
 | `-i file` | Identity file (private key) |
-| `-l user` | Login username |
 | `-L [bind:]port:host:port` | Local port forwarding |
 | `-R [bind:]port:host:port` | Remote port forwarding |
 | `-D [bind:]port` | Dynamic SOCKS proxy |
@@ -152,7 +137,6 @@ cat ~/.ssh/id_ed25519.pub | ssh user@server 'cat >> ~/.ssh/authorized_keys'
 | `-X` | Enable X11 forwarding |
 | `-A` | Enable agent forwarding |
 | `-t` | Force pseudo-terminal allocation |
-| `-o option` | Set configuration option |
 
 ## Escape Characters
 
@@ -163,19 +147,17 @@ When connected, use these escape sequences (must follow newline):
 | `~.` | Disconnect |
 | `~^Z` | Background SSH |
 | `~#` | List forwarded connections |
-| `~?` | Display escape help |
 | `~C` | Open command line (add/remove forwards) |
-| `~R` | Request rekeying |
 
 ## Related Tools
 
-- `ssh-keygen` - Generate and manage SSH keys
-- `ssh-agent` - Authentication agent for key management
-- `ssh-add` - Add keys to agent
-- `ssh-copy-id` - Copy public key to remote server
-- `scp` - Secure copy (file transfer)
-- `sftp` - Secure FTP
-- `sshd` - SSH daemon (server)
+| Tool | Description |
+|------|-------------|
+| `ssh-keygen` | Generate and manage SSH keys |
+| `ssh-agent` | Authentication agent for key management |
+| `ssh-copy-id` | Copy public key to remote server |
+| `scp` / `sftp` | Secure file transfer |
+| `sshd` | SSH daemon (server) |
 
 ## Key Files
 
@@ -185,18 +167,6 @@ When connected, use these escape sequences (must follow newline):
 | `~/.ssh/known_hosts` | Known host keys |
 | `~/.ssh/authorized_keys` | Authorized public keys (server) |
 | `~/.ssh/id_ed25519` | Ed25519 private key |
-| `~/.ssh/id_ed25519.pub` | Ed25519 public key |
-| `~/.ssh/id_rsa` | RSA private key |
-| `/etc/ssh/ssh_config` | System-wide client configuration |
-
-## Security Considerations
-
-- Prefer Ed25519 or RSA (4096-bit) keys over older algorithms
-- Disable password authentication when possible
-- Use ssh-agent with key confirmation for sensitive keys
-- Enable agent forwarding only when necessary
-- Regularly rotate keys and audit authorized_keys
-- Use ProxyJump instead of agent forwarding when possible
 
 ## See Also
 
